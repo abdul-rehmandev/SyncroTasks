@@ -1,0 +1,44 @@
+name: CI Pipeline
+
+# Trigger the workflow on pushes or pull requests to the main branch
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+# Define the jobs (tasks) for this workflow
+jobs:
+  build:
+    runs-on: ubuntu-latest  # The OS used to run the CI/CD pipeline
+
+    steps:
+      # Step 1: Checkout the latest code from the repository
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Node.js environment
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'  # Specify the Node.js version you are using
+          cache: 'npm'          # Caches npm modules for faster builds
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm install
+
+      # Step 4: Run tests (Jest or Cypress)
+      - name: Run tests
+        run: npm run test  # Make sure you have a test script in your package.json
+        env:
+          CI: true  # Forces Jest to run in CI mode for consistency
+
+      # Step 5 (Optional): Deploy if tests pass
+    #   - name: Deploy to Vercel
+    #     if: success()  # Only runs if all previous steps succeeded
+    #     run: npm run deploy  # Add your deployment command here (e.g., `vercel --prod` if using Vercel)
+    #     env:
+    #       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
