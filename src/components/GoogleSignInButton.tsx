@@ -1,14 +1,16 @@
 'use client';
 import React from 'react'
 import { signIn } from 'next-auth/react';
+import { Button } from "@/components/ui/button"
 
-const GoogleSignInButton = () => {
+interface BtnTextPropTypes {
+    btnText: string;
+}
+
+const GoogleSignInButton = ({ btnText }: BtnTextPropTypes) => {
     return (
         <div>
-            <h1>Sign In</h1>
-            <button onClick={() => signIn('google')} style={{ padding: '10px', backgroundColor: '#4285F4', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer' }}>
-                Continue with Google
-            </button>
+            <Button onClick={() => signIn('google')}>{btnText}</Button>
         </div>
     )
 }

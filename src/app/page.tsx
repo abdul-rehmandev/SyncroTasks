@@ -1,9 +1,8 @@
 import React from 'react'
-import Navbar from '@/components/Navbar'
-import GoogleSignInButton from '@/components/GoogleSignInButton'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from "next/navigation"
+import Homepage from "@/app/(pages)/homepage/page";
 
 
 const Home = async () => {
@@ -15,9 +14,8 @@ const Home = async () => {
   }
 
   return (
-    <div className='container'>
-      <Navbar />
-      <GoogleSignInButton />
+    <div>
+      <Homepage />
     </div>
   )
 }
