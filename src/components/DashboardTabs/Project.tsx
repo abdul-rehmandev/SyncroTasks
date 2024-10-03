@@ -9,7 +9,8 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus } from 'lucide-react'
+import { BadgePlus, UserPlus } from 'lucide-react'
+import ModalBox from '../ModalBox'
 
 
 
@@ -59,7 +60,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                 </CardHeader>
                 <CardContent>
                     <div>
-                        <div className='w-[20%] flex justify-between'>
+                        <div className='w-[32%] flex justify-between'>
                             <div className='flex'>
                                 {displayedMembers.map((member, index) => (
                                     <Avatar key={index} className='-mr-3'>
@@ -70,11 +71,15 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 {remainingCount > 0 && (
                                     <Avatar className='-mr-3'>
                                         <AvatarImage src="" />
-                                        <AvatarFallback>+{remainingCount}</AvatarFallback>
+                                        <AvatarFallback><ModalBox btnText={`+${remainingCount}`} modalHeader='Manage and view members' widthSize='w-full' borderSize={0}>
+                                            <p>A</p>
+                                        </ModalBox></AvatarFallback>
                                     </Avatar>
                                 )}
                             </div>
-                            <Button>Invite</Button>
+                            <ModalBox btnText='Invite a member' modalHeader='Invite a new member' widthSize='w-[220px]' borderSize={2} icon=<UserPlus /> >
+                                <p>A</p>
+                            </ModalBox>
                         </div>
                     </div>
                 </CardContent>

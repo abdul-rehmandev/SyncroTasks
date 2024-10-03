@@ -1,4 +1,5 @@
 import React from 'react'
+import ModalBox from '../ModalBox'
 
 const Dashboard = () => {
     return (
