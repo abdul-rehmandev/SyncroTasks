@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import {
     Card
 } from "@/components/ui/card"
@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { signOut, useSession } from 'next-auth/react';
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus, Bell, LayoutDashboard, Minus, SquareKanban, SquarePlus } from "lucide-react"
+import { BadgePlus, Bell, LayoutDashboard, Minus, OctagonX, SquareKanban, SquarePlus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import Dashboard from '@/components/DashboardTabs/Dashboard';
 import Project from '@/components/DashboardTabs/Project';
@@ -23,33 +23,58 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
+import toast from 'react-hot-toast';
 
 
 const page = () => {
 
     const { data: session } = useSession();
 
-    const projectsLinks = [
-        {
-            id: "1",
-            name: "Project1"
-        },
-        {
-            id: "2",
-            name: "Project2"
-        },
-        {
-            id: "3",
-            name: "Project3"
-        },
-        {
-            id: "4",
-            name: "Project4"
-        }
-    ]
-
     const [currTab, setCurrTab] = useState("dashboard")
-    console.log("🚀 ~ page ~ currTab:", currTab)
+
+    // Create Project
+    const [projectName, setProjectName] = useState<string>("")
+    const [projectDescription, setProjectDescription] = useState("")
+
+    const createProject = async () => {
+        if (!projectName || !projectDescription) return toast.error("All fields required!")
+        toast.loading("Project creating inprogress", { id: "1" })
+        const response = await fetch('/api/projects', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                projectName,
+                projectDescription
+            })
+        })
+
+        if (response.ok) {
+            toast.success("Project created successfully!", { id: "1" })
+            setProjectName("")
+            setProjectDescription("")
+        } else {
+            toast.error('Error creating project', { id: "1" });
+        }
+    }
+
+    //Fetch projects of SignedIn user
+    const [project, setProjects] = useState([])
+    const fetchProjects = async () => {
+        const response = await fetch('/api/projects/my-projects', { method: "GET" });
+        const data = await response.json();
+
+        if (response.ok) {
+            setProjects(data);
+        } else {
+            console.error('Failed to fetch projects');
+        }
+    };
+
+    useEffect(() => {
+        fetchProjects()
+    }, [])
 
     return (
         <div>
@@ -84,13 +109,13 @@ const page = () => {
                                 <ModalBox btnText='Create new project' modalHeader='Create a new project' widthSize='w-full' icon=<BadgePlus /> >
                                     <div className="grid w-full items-center gap-1.5">
                                         <Label htmlFor="email">Enter project name</Label>
-                                        <Input type="email" id="email" placeholder="Project name" />
+                                        <Input type="email" id="email" placeholder="Project name" value={projectName} onChange={(e) => setProjectName(e.target.value)} />
                                     </div>
                                     <div className="grid w-full gap-1.5 my-3">
                                         <Label htmlFor="message">Write project description</Label>
-                                        <Textarea placeholder="Type your description here." id="message" />
+                                        <Textarea placeholder="Type your description here." id="message" value={projectDescription} onChange={(e) => setProjectDescription(e.target.value)} />
                                     </div>
-                                    <Button variant="outline" className='w-full'><SquarePlus className="mr-2" />Create this project</Button>
+                                    <Button variant="outline" className='w-full' onClick={createProject}><SquarePlus className="mr-2" />Create this project</Button>
                                 </ModalBox>
                                 <Separator className='mt-3' />
                                 <Badge variant="outline" className='mt-3'>Overview</Badge>
@@ -99,9 +124,25 @@ const page = () => {
                                 </div>
                                 <Badge variant="outline" className='mt-3'>Projects</Badge>
                                 <div>
-                                    {projectsLinks.map((item: projectsLinksTypes, index) => (
-                                        <span className='flex items-center cursor-pointer my-1' style={currTab.split('/').pop() == item.name ? { color: "orange", marginLeft: "10px", transition: "0.5s all ease" } : { color: "black" }} key={index} onClick={() => setCurrTab(`/project/${item.name}`)}><Minus /><SquareKanban className='mr-1' size={20} /> {item.name}</span>
-                                    ))}
+                                    {project.length > 0 ? (
+                                        project.map((item: projectsLinksTypes, index) => (
+                                            <span
+                                                className='flex items-center cursor-pointer my-1'
+                                                style={
+                                                    currTab.split('/').pop() == item.projectName
+                                                        ? { color: "orange", marginLeft: "10px", transition: "0.5s all ease" }
+                                                        : { color: "black" }
+                                                }
+                                                key={index}
+                                                onClick={() => setCurrTab(`/project/${item.projectName}`)}
+                                            >
+                                                <Minus />
+                                                <SquareKanban className='mr-1' size={20} /> {item.projectName}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className='mt-2 flex items-center'><OctagonX color='orange' /> No project found</p>
+                                    )}
                                 </div>
                             </div>
                         </div>

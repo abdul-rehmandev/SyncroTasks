@@ -128,7 +128,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                             <SelectValue placeholder="Select user to assign this task" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {displayedMembers.map((member, index) => (
+                                            {teamMembers.map((member, index) => (
                                                 <SelectItem value={member.email} key={index}>{member.email}</SelectItem>
                                             ))}
                                         </SelectContent>

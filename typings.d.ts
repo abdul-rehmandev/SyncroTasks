@@ -1,4 +1,4 @@
 interface projectsLinksTypes {
     id: string;
-    name: string;
+    projectName: string;
 }

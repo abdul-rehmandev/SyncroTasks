@@ -3,6 +3,7 @@ import { Rubik } from "next/font/google";
 import "./globals.css";
 import Providers from "@/components/Providers";
 import AuthSessionProvider from "@/components/AuthSessionProvider";
+import { Toaster } from 'react-hot-toast';
 
 
 const inter = Rubik({ subsets: ["latin"] });
@@ -25,6 +26,7 @@ export default function RootLayout({
         <AuthSessionProvider>
           <Providers>
             {children}
+            <Toaster />
           </Providers>
         </AuthSessionProvider>
       </body>
