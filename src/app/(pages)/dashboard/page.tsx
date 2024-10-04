@@ -14,11 +14,15 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { signOut, useSession } from 'next-auth/react';
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus, Bell, LayoutDashboard, Minus, SquareKanban } from "lucide-react"
+import { BadgePlus, Bell, LayoutDashboard, Minus, SquareKanban, SquarePlus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import Dashboard from '@/components/DashboardTabs/Dashboard';
 import Project from '@/components/DashboardTabs/Project';
 import ModalBox from '@/components/ModalBox';
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Textarea } from "@/components/ui/textarea"
+import { Button } from "@/components/ui/button"
 
 
 const page = () => {
@@ -28,19 +32,19 @@ const page = () => {
     const projectsLinks = [
         {
             id: "1",
-            name: "project1"
+            name: "Project1"
         },
         {
             id: "2",
-            name: "project2"
+            name: "Project2"
         },
         {
             id: "3",
-            name: "project3"
+            name: "Project3"
         },
         {
             id: "4",
-            name: "project4"
+            name: "Project4"
         }
     ]
 
@@ -77,8 +81,16 @@ const page = () => {
                             </div>
 
                             <div>
-                                <ModalBox btnText='Create new project' modalHeader='Create a new project' widthSize='w-full' borderSize={2} icon=<BadgePlus /> >
-                                    <p>A</p>
+                                <ModalBox btnText='Create new project' modalHeader='Create a new project' widthSize='w-full' icon=<BadgePlus /> >
+                                    <div className="grid w-full items-center gap-1.5">
+                                        <Label htmlFor="email">Enter project name</Label>
+                                        <Input type="email" id="email" placeholder="Project name" />
+                                    </div>
+                                    <div className="grid w-full gap-1.5 my-3">
+                                        <Label htmlFor="message">Write project description</Label>
+                                        <Textarea placeholder="Type your description here." id="message" />
+                                    </div>
+                                    <Button variant="outline" className='w-full'><SquarePlus className="mr-2" />Create this project</Button>
                                 </ModalBox>
                                 <Separator className='mt-3' />
                                 <Badge variant="outline" className='mt-3'>Overview</Badge>

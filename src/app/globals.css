@@ -80,3 +80,14 @@ body {
     @apply bg-background text-foreground;
   }
 }
+
+.tasks-scroll {
+  overflow-x: scroll;
+  scrollbar-width: none;
+  overflow-y: auto;
+}
+
+.tasks-scroll::-webkit-scrollbar {
+  display: none;
+  /* For Chrome, Safari, and Opera */
+}

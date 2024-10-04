@@ -13,18 +13,17 @@ interface ModalBoxPropsTypes {
     modalHeader: string;
     widthSize: string;
     icon?: any;
-    borderSize: number;
     children: React.ReactNode;
 }
 
 
-const ModalBox = ({ btnText, modalHeader, widthSize, icon, borderSize, children }: ModalBoxPropsTypes) => {
+const ModalBox = ({ btnText, modalHeader, widthSize, icon, children }: ModalBoxPropsTypes) => {
     return (
         <Dialog>
-            <DialogTrigger className={`border-${borderSize} px-4 py-1 rounded-full ${widthSize} hover:bg-gray-100 transition-all flex justify-center items-center gap-2`}>{icon}{btnText}</DialogTrigger>
+            <DialogTrigger className={`border-2 px-4 py-1 rounded-full ${widthSize} hover:bg-gray-100 transition-all flex justify-center items-center gap-2`}>{icon}{btnText}</DialogTrigger>
             <DialogContent>
                 <DialogHeader>
-                    <DialogTitle>{modalHeader}</DialogTitle>
+                    <DialogTitle className='mb-3'>{modalHeader}</DialogTitle>
                     <DialogDescription>
                         {children}
                     </DialogDescription>
