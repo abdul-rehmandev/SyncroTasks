@@ -1,4 +1,5 @@
-import React from 'react'
+"use client"
+import React, { useEffect, useState } from 'react'
 import {
     Card,
     CardContent,
@@ -22,6 +23,7 @@ import {
     SelectValue,
 } from "@/components/ui/select"
 import Task from '../Task'
+import toast from 'react-hot-toast'
 
 
 
@@ -51,12 +53,40 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     const displayedMembers = teamMembers.slice(0, 1);
     const remainingCount = teamMembers.length - displayedMembers.length;
 
+    //Get Project Details
+    const [project, setProject] = useState<ProjectTypes | undefined>();
+    console.log("🚀 ~ Project ~ project:", project)
+    const fetchProject = async () => {
+        const response = await fetch('/api/projects/single-project', {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                projectName: lastSegment,
+            })
+        })
+
+        if (response.ok) {
+            const data = await response.json();
+            setProject(data)
+        } else {
+            toast.error('Project fetching failed', { id: "1" });
+        }
+    }
+
+    useEffect(() => {
+        fetchProject();
+    }, [])
+
+    if (!project) return <p>Loading...</p>
+
     return (
         <div>
             <Card>
                 <CardHeader>
                     <CardTitle>{lastSegment}</CardTitle>
-                    <CardDescription>Lorem ipsum dolor sit amet consectetur adipisicing elit. Cum, distinctio consequatur necessitatibus suscipit delectus doloribus debitis eligendi non voluptatum blanditiis.</CardDescription>
+                    <CardDescription>{project?.projectDescription}</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className='flex items-center justify-between'>
@@ -193,30 +223,32 @@ const Project = ({ projectName }: ProjectPropTypes) => {
             <div className='flex justify-between items-start'>
                 <Card className='my-4 w-[33%] max-h-[69vh] tasks-scroll'>
                     <CardHeader>
-                        <CardTitle className='flex justify-between items-center'><Badge>Todo</Badge><Badge variant="secondary">Tasks: 4</Badge></CardTitle>
+                        <CardTitle className='flex justify-between items-center'><Badge>Todo</Badge><Badge variant="secondary">Tasks: {project?.todoTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Task />
-                        <Task />
-                        <Task />
-                        <Task />
+                        {project.todoTasks.map((task, index) => (
+                            <Task key={index} />
+                        ))}
                     </CardContent>
                 </Card>
                 <Card className='my-4 w-[33%] max-h-[69vh]'>
                     <CardHeader>
-                        <CardTitle className='flex justify-between items-center'><Badge>Doing</Badge><Badge variant="secondary">Tasks: 0</Badge></CardTitle>
+                        <CardTitle className='flex justify-between items-center'><Badge>Doing</Badge><Badge variant="secondary">Tasks: {project?.doingTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Task />
+                        {project.doingTasks.map((task, index) => (
+                            <Task key={index} />
+                        ))}
                     </CardContent>
                 </Card>
                 <Card className='my-4 w-[33%] max-h-[69vh]'>
                     <CardHeader>
-                        <CardTitle className='flex justify-between items-center'><Badge>Done</Badge><Badge variant="secondary">Tasks: 0</Badge></CardTitle>
+                        <CardTitle className='flex justify-between items-center'><Badge>Done</Badge><Badge variant="secondary">Tasks: {project?.doneTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <Task />
-                        <Task />
+                        {project.doneTasks.map((task, index) => (
+                            <Task key={index} />
+                        ))}
                     </CardContent>
                 </Card>
             </div>

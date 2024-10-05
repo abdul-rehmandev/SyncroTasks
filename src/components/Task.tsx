@@ -9,9 +9,8 @@ import {
 import { Badge } from "@/components/ui/badge"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import ModalBox from './ModalBox'
-import { Maximize2, SquarePlus, Trash2 } from 'lucide-react'
+import { Maximize2, Trash2 } from 'lucide-react'
 import { Separator } from "@/components/ui/separator"
-import { Button } from "@/components/ui/button"
 
 const Task = () => {
 
