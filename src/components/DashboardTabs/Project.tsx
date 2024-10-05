@@ -55,7 +55,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
     //Get Project Details
     const [project, setProject] = useState<ProjectTypes | undefined>();
-    console.log("🚀 ~ Project ~ project:", project)
+
     const fetchProject = async () => {
         const response = await fetch('/api/projects/single-project', {
             method: "POST",
@@ -75,11 +75,40 @@ const Project = ({ projectName }: ProjectPropTypes) => {
         }
     }
 
+    const [allUsers, setAllUsers] = useState<UserTypes[]>([]);
+    const fetchUsers = async () => {
+        const response = await fetch('/api/users', { method: "GET" });
+        const data = await response.json();
+
+        if (response.ok) {
+            setAllUsers(data);
+        } else {
+            console.error('Failed to fetch users');
+        }
+    };
+
     useEffect(() => {
         fetchProject();
+        fetchUsers();
     }, [])
 
+    //Search Users Functionality
+    const [searchTerm, setSearchTerm] = useState('');
+    const [filteredUsers, setFilteredUsers] = useState(allUsers)
+
+    const handleSearch = (e: any) => {
+        const value = e.target.value.toLowerCase();
+        setSearchTerm(value);
+
+        const filtered = allUsers.filter((user) =>
+            user.email.toLowerCase().includes(value)
+        );
+
+        setFilteredUsers(filtered);
+    };
+
     if (!project) return <p>Loading...</p>
+
 
     return (
         <div>
@@ -123,10 +152,10 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                             <ModalBox btnText='Invite a member' modalHeader='Invite a new member' widthSize='w-[220px]' icon=<UserPlus /> >
                                 <div className="grid w-full items-center gap-1.5">
                                     <Label htmlFor="email">Enter user email</Label>
-                                    <Input type="email" id="email" placeholder="Enter the user email whom you want to add" />
+                                    <Input type="email" id="email" placeholder="Enter the user email whom you want to add" value={searchTerm} onChange={handleSearch} />
                                 </div>
                                 <div className='mt-3'>
-                                    {teamMembers.map((member, index) => (
+                                    {filteredUsers.slice(0, 3).map((member, index) => (
                                         <div className='flex items-center justify-between' key={index}>
                                             <div className='flex items-center gap-2'>
                                                 <Avatar className='my-2'>

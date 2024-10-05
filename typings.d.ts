@@ -10,3 +10,9 @@ interface ProjectTypes {
     doingTasks: [];
     doneTasks: [];
 }
+
+interface UserTypes {
+    name: string;
+    email: string;
+    image: string;
+}
