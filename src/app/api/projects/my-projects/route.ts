@@ -16,7 +16,12 @@ export async function GET() {
     await connectToDatabase();
 
     // Find all projects where the current user is the owner by email
-    const projects = await Project.find({ 'projectOwner.email': session?.user?.email });
+    const projects = await Project.find({
+        $or: [
+            { 'projectOwner.email': session.user.email }, // User is the owner
+            { 'projectMembers.email': session.user.email } // User is a member
+        ]
+    });
 
     return NextResponse.json(projects);
 }

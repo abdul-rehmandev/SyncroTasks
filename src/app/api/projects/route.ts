@@ -24,6 +24,7 @@ export async function POST(req: Request) {
         projectOwner: {
             email: session?.user?.email, // Store the email of the signed-in user
             role: 'owner',
+            image: session?.user?.image
         },
         projectMembers: [], // No team members initially
         todoTasks: [],

@@ -51,6 +51,8 @@ const page = () => {
         })
 
         if (response.ok) {
+            const data = await response.json();
+            setProjects((prevProjects) => [...prevProjects, data])
             toast.success("Project created successfully!", { id: "1" })
             setProjectName("")
             setProjectDescription("")
@@ -60,7 +62,7 @@ const page = () => {
     }
 
     //Fetch projects of SignedIn user
-    const [project, setProjects] = useState([])
+    const [project, setProjects] = useState<ProjectTypes[]>([])
     const fetchProjects = async () => {
         const response = await fetch('/api/projects/my-projects', { method: "GET" });
         const data = await response.json();
@@ -125,7 +127,7 @@ const page = () => {
                                 <Badge variant="outline" className='mt-3'>Projects</Badge>
                                 <div>
                                     {project.length > 0 ? (
-                                        project.map((item: projectsLinksTypes, index) => (
+                                        project.map((item: ProjectTypes, index) => (
                                             <span
                                                 className='flex items-center cursor-pointer my-1'
                                                 style={

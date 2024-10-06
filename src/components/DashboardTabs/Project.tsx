@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus, Forward, SquarePlus, Trash2, UserPlus } from 'lucide-react'
+import { BadgePlus, Check, Eye, Forward, SquarePlus, Trash2, UserPlus } from 'lucide-react'
 import ModalBox from '../ModalBox'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -24,6 +24,14 @@ import {
 } from "@/components/ui/select"
 import Task from '../Task'
 import toast from 'react-hot-toast'
+import { useSession } from 'next-auth/react'
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip"
+
 
 
 
@@ -33,25 +41,10 @@ interface ProjectPropTypes {
 
 const Project = ({ projectName }: ProjectPropTypes) => {
 
+    const { data: session } = useSession();
+
     const segments = projectName.split('/');
     const lastSegment = segments[segments.length - 1];
-
-
-    const teamMembers = [
-        {
-            id: "1",
-            image: "https://github.com/shadcn.png",
-            email: "mianrehman7495@gmail.com"
-        },
-        {
-            id: "2",
-            image: "https://github.com/shadcn.png",
-            email: "mianrehman7595@gmail.com"
-        }
-    ]
-
-    const displayedMembers = teamMembers.slice(0, 1);
-    const remainingCount = teamMembers.length - displayedMembers.length;
 
     //Get Project Details
     const [project, setProject] = useState<ProjectTypes | undefined>();
@@ -90,7 +83,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     useEffect(() => {
         fetchProject();
         fetchUsers();
-    }, [])
+    }, [projectName])
 
     //Search Users Functionality
     const [searchTerm, setSearchTerm] = useState('');
@@ -107,7 +100,34 @@ const Project = ({ projectName }: ProjectPropTypes) => {
         setFilteredUsers(filtered);
     };
 
-    if (!project) return <p>Loading...</p>
+    //Add user to project
+    const addUserToProject = async (userEmail: string, userImage: string) => {
+        toast.loading(`Adding ${userEmail}`, { id: "1" })
+        try {
+            const response = await fetch(`/api/projects/add-member`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ userEmail, projectName: lastSegment, userImage }),
+            });
+
+            if (response.ok) {
+                toast.success('User added to the project successfully!', { id: "1" });
+            } else {
+                const data = await response.json();
+                toast.error(data.message, { id: "1" });
+            }
+        } catch (error: any) {
+            toast.error('An error occurred:', { id: "1" });
+        }
+    };
+
+    const isUserAlreadyAdded = (email: string) => {
+        return project?.projectMembers.some((member) => member.email === email);
+    };
+
+    if (!project) return <small>Loading...</small>
 
 
     return (
@@ -119,37 +139,46 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                 </CardHeader>
                 <CardContent>
                     <div className='flex items-center justify-between'>
-                        <div className='w-[28%] flex justify-between'>
+                        <div className='w-[27%] flex justify-between'>
                             <div className='flex'>
-                                {displayedMembers.map((member, index) => (
-                                    <Avatar key={index} className='-mr-3'>
-                                        <AvatarImage src={member.image} />
-                                        <AvatarFallback>CN</AvatarFallback>
-                                    </Avatar>
-                                ))}
-                                {remainingCount > 0 && (
-                                    <Avatar className='-mr-3'>
-                                        <AvatarImage src="" />
-                                        <AvatarFallback><ModalBox btnText={`+${remainingCount}`} modalHeader='Manage and view members' widthSize='w-full'>
-                                            {teamMembers.map((member, index) => (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger><Avatar className='-mr-3'>
+                                            <AvatarImage src={project.projectOwner.image} />
+                                            <AvatarFallback>CN</AvatarFallback>
+                                        </Avatar></TooltipTrigger>
+                                        <TooltipContent>
+                                            Project Owner : <span>{project.projectOwner.email}</span>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                                <Avatar className='-mr-3'>
+                                    <AvatarImage src="" />
+                                    <AvatarFallback><ModalBox btnText={project.projectMembers.length > 0 ? `+${project.projectMembers.length}` : `👀`} modalHeader='Manage and view members' widthSize='w-full'>
+                                        {project.projectMembers.length > 0 ? (
+                                            project.projectMembers.map((member, index) => (
                                                 <div key={index}>
-                                                    <div className='flex items-center justify-between'>
-                                                        <div className='flex items-center gap-2'>
-                                                            <Avatar className='my-2'>
+                                                    <div className="flex items-center justify-between">
+                                                        <div className="flex items-center gap-2">
+                                                            <Avatar className="my-2">
                                                                 <AvatarImage src={member.image} />
                                                                 <AvatarFallback>CN</AvatarFallback>
                                                             </Avatar>
                                                             <span>{member.email}</span>
                                                         </div>
-                                                        <Trash2 className='hover:text-red-500 cursor-pointer' />
+                                                        {project.projectOwner.email == session?.user?.email && <Trash2 className="hover:text-red-500 cursor-pointer" />}
                                                     </div>
                                                 </div>
-                                            ))}
-                                        </ModalBox></AvatarFallback>
-                                    </Avatar>
-                                )}
+                                            ))
+                                        ) : (
+                                            <div className="text-center">
+                                                <p>No members found</p>
+                                            </div>
+                                        )}
+                                    </ModalBox></AvatarFallback>
+                                </Avatar>
                             </div>
-                            <ModalBox btnText='Invite a member' modalHeader='Invite a new member' widthSize='w-[220px]' icon=<UserPlus /> >
+                            {project.projectOwner.email == session?.user?.email && <ModalBox btnText='Invite a member' modalHeader='Invite a new member' widthSize='w-[220px]' icon=<UserPlus /> >
                                 <div className="grid w-full items-center gap-1.5">
                                     <Label htmlFor="email">Enter user email</Label>
                                     <Input type="email" id="email" placeholder="Enter the user email whom you want to add" value={searchTerm} onChange={handleSearch} />
@@ -164,13 +193,15 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                                 </Avatar>
                                                 <span>{member.email}</span>
                                             </div>
-                                            <Button variant="outline"><BadgePlus className='mr-2' />Add this user</Button>
+                                            <Button variant="outline" onClick={() => addUserToProject(member.email, member.image)} disabled={isUserAlreadyAdded(member.email)}> {isUserAlreadyAdded(member.email) ? <Check className='mr-2' /> : <BadgePlus className='mr-2' />}
+                                                {isUserAlreadyAdded(member.email) ? 'Added' : 'Add this user'}
+                                            </Button>
                                         </div>
                                     ))}
                                 </div>
-                            </ModalBox>
+                            </ModalBox>}
                         </div>
-                        <div className='flex items-center gap-2'>
+                        {project.projectOwner.email == session?.user?.email && <div className='flex items-center gap-2'>
                             <ModalBox btnText='Add Task' modalHeader='Add a new task' widthSize='w-[150px]' icon=<BadgePlus /> >
                                 <div className="grid w-full items-center gap-1.5 mb-2">
                                     <Label htmlFor="email">Enter task name</Label>
@@ -187,9 +218,15 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                             <SelectValue placeholder="Select user to assign this task" />
                                         </SelectTrigger>
                                         <SelectContent>
-                                            {teamMembers.map((member, index) => (
-                                                <SelectItem value={member.email} key={index}>{member.email}</SelectItem>
-                                            ))}
+                                            {project.projectMembers.length > 0 ? (
+                                                project.projectMembers.map((member, index) => (
+                                                    <SelectItem value={member.email} key={index}>{member.email}</SelectItem>
+                                                ))
+                                            ) : (
+                                                <div className="text-center">
+                                                    <p>No members found</p>
+                                                </div>
+                                            )}
                                         </SelectContent>
                                     </Select>
                                 </div>
@@ -222,29 +259,35 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 <Button variant="outline" className='w-full'><SquarePlus className="mr-2" />Create this task</Button>
                             </ModalBox>
                             <ModalBox btnText='Assign Task' modalHeader='Assign task to user' widthSize='w-[160px]' icon=<Forward /> >
-                                {teamMembers.map((member, index) => (
-                                    <div className='flex items-center justify-between gap-5' key={index}>
-                                        <div className='flex items-center gap-2'>
-                                            <Avatar className='my-2'>
-                                                <AvatarImage src={member.image} />
-                                                <AvatarFallback>CN</AvatarFallback>
-                                            </Avatar>
-                                            <span>{member.email}</span>
+                                {project.projectMembers.length > 0 ? (
+                                    project.projectMembers.map((member, index) => (
+                                        <div className='flex items-center justify-between gap-5' key={index}>
+                                            <div className='flex items-center gap-2'>
+                                                <Avatar className='my-2'>
+                                                    <AvatarImage src={member.image} />
+                                                    <AvatarFallback>CN</AvatarFallback>
+                                                </Avatar>
+                                                <span>{member.email}</span>
+                                            </div>
+                                            <Select>
+                                                <SelectTrigger>
+                                                    <SelectValue placeholder="Select task to assign" />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectItem value="Fix Navbar Issue" >Fix Navbar Issue</SelectItem>
+                                                    <SelectItem value="Api calling" >Api calling</SelectItem>
+                                                </SelectContent>
+                                            </Select>
                                         </div>
-                                        <Select>
-                                            <SelectTrigger>
-                                                <SelectValue placeholder="Select task to assign" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectItem value="Fix Navbar Issue" >Fix Navbar Issue</SelectItem>
-                                                <SelectItem value="Api calling" >Api calling</SelectItem>
-                                            </SelectContent>
-                                        </Select>
+                                    ))
+                                ) : (
+                                    <div className="text-center">
+                                        <p>No members found</p>
                                     </div>
-                                ))}
+                                )}
                             </ModalBox>
-                            <Button className='bg-red-500 hover:bg-red-500'> <Trash2 className='mr-2' /> Delete this project</Button>
-                        </div>
+                            <Button className='bg-red-500 hover:bg-red-500'> <Trash2 className='mr-2' />Delete this project</Button>
+                        </div>}
                     </div>
                 </CardContent>
             </Card>
