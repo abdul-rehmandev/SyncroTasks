@@ -133,6 +133,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     const [taskStatus, setTaskStatus] = useState('Todo');
 
     const newTaskCreation = async () => {
+        if (!taskName || !taskDescription || !assignTaskUserEmail || !taskPriority || !taskStatus) return toast.error("All fields required!")
         toast.loading(`Adding Task ${taskName}`, { id: "1" })
         const emailplusimage = assignTaskUserEmail;
         const [email, imageUrl] = emailplusimage.split('+');
