@@ -14,9 +14,7 @@ const Home = async () => {
   }
 
   return (
-    <div>
-      <Homepage />
-    </div>
+    <Homepage />
   )
 }
 
