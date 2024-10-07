@@ -83,7 +83,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     useEffect(() => {
         fetchProject();
         fetchUsers();
-    }, [projectName])
+    }, [lastSegment])
 
     //Search Users Functionality
     const [searchTerm, setSearchTerm] = useState('');
@@ -123,6 +123,43 @@ const Project = ({ projectName }: ProjectPropTypes) => {
         }
     };
 
+
+    //Create new task
+    const [taskName, setTaskName] = useState('');
+    const [taskDescription, setTaskDescription] = useState('');
+    const [assignTaskUserEmail, setAssignTaskUserEmail] = useState('');
+    const [taskPriority, setTaskPriority] = useState('Low');
+    const [taskStatus, setTaskStatus] = useState('Todo');
+
+    const newTaskCreation = async () => {
+        toast.loading(`Adding Task ${taskName}`, { id: "1" })
+        const emailplusimage = assignTaskUserEmail;
+        const [email, imageUrl] = emailplusimage.split('+');
+
+        const response = await fetch(`/api/projects/add-task`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                taskName,
+                taskDescription, // Add image if needed
+                taskPriority,
+                taskStatus,
+                projectName: lastSegment,
+                assignTaskUserEmail: email,
+                assignTaskUserImage: imageUrl
+            }),
+        });
+
+        if (response.ok) {
+            toast.success('Task added successfully', { id: "1" });
+        } else {
+            const data = await response.json();
+            toast.error(data.message, { id: "1" })
+        }
+    }
+
     const isUserAlreadyAdded = (email: string) => {
         return project?.projectMembers.some((member) => member.email === email);
     };
@@ -145,7 +182,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                     <Tooltip>
                                         <TooltipTrigger><Avatar className='-mr-3'>
                                             <AvatarImage src={project.projectOwner.image} />
-                                            <AvatarFallback>CN</AvatarFallback>
+                                            <AvatarFallback>ST</AvatarFallback>
                                         </Avatar></TooltipTrigger>
                                         <TooltipContent>
                                             Project Owner : <span>{project.projectOwner.email}</span>
@@ -162,7 +199,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                                         <div className="flex items-center gap-2">
                                                             <Avatar className="my-2">
                                                                 <AvatarImage src={member.image} />
-                                                                <AvatarFallback>CN</AvatarFallback>
+                                                                <AvatarFallback>ST</AvatarFallback>
                                                             </Avatar>
                                                             <span>{member.email}</span>
                                                         </div>
@@ -189,7 +226,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                             <div className='flex items-center gap-2'>
                                                 <Avatar className='my-2'>
                                                     <AvatarImage src={member.image} />
-                                                    <AvatarFallback>CN</AvatarFallback>
+                                                    <AvatarFallback>ST</AvatarFallback>
                                                 </Avatar>
                                                 <span>{member.email}</span>
                                             </div>
@@ -205,22 +242,22 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                             <ModalBox btnText='Add Task' modalHeader='Add a new task' widthSize='w-[150px]' icon=<BadgePlus /> >
                                 <div className="grid w-full items-center gap-1.5 mb-2">
                                     <Label htmlFor="email">Enter task name</Label>
-                                    <Input type="email" id="email" placeholder="Task name" />
+                                    <Input type="email" id="email" placeholder="Task name" value={taskName} onChange={(e) => setTaskName(e.target.value)} />
                                 </div>
                                 <div className="grid w-full gap-1.5 mb-2">
                                     <Label htmlFor="message">Write task description</Label>
-                                    <Textarea placeholder="Type your description here." id="message" />
+                                    <Textarea placeholder="Type your description here." id="message" value={taskDescription} onChange={(e) => setTaskDescription(e.target.value)} />
                                 </div>
                                 <div className='mb-2'>
                                     <Label htmlFor="message">Assign task</Label>
-                                    <Select>
+                                    <Select value={assignTaskUserEmail} onValueChange={setAssignTaskUserEmail}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select user to assign this task" />
                                         </SelectTrigger>
                                         <SelectContent>
                                             {project.projectMembers.length > 0 ? (
                                                 project.projectMembers.map((member, index) => (
-                                                    <SelectItem value={member.email} key={index}>{member.email}</SelectItem>
+                                                    <SelectItem value={`${member.email}+${member.image}`} key={index}>{member.email}</SelectItem>
                                                 ))
                                             ) : (
                                                 <div className="text-center">
@@ -232,7 +269,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 </div>
                                 <div className='mb-2'>
                                     <Label htmlFor="message">Task priority</Label>
-                                    <Select>
+                                    <Select value={taskPriority} onValueChange={setTaskPriority}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select user to assign this task" />
                                         </SelectTrigger>
@@ -245,7 +282,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 </div>
                                 <div className='mb-2'>
                                     <Label htmlFor="message">Task Status</Label>
-                                    <Select>
+                                    <Select value={taskStatus} onValueChange={setTaskStatus}>
                                         <SelectTrigger>
                                             <SelectValue placeholder="Select user to assign this task" />
                                         </SelectTrigger>
@@ -256,7 +293,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                         </SelectContent>
                                     </Select>
                                 </div>
-                                <Button variant="outline" className='w-full'><SquarePlus className="mr-2" />Create this task</Button>
+                                <Button variant="outline" className='w-full' onClick={newTaskCreation}><SquarePlus className="mr-2" />Create this task</Button>
                             </ModalBox>
                             <ModalBox btnText='Assign Task' modalHeader='Assign task to user' widthSize='w-[160px]' icon=<Forward /> >
                                 {project.projectMembers.length > 0 ? (
@@ -265,7 +302,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                             <div className='flex items-center gap-2'>
                                                 <Avatar className='my-2'>
                                                     <AvatarImage src={member.image} />
-                                                    <AvatarFallback>CN</AvatarFallback>
+                                                    <AvatarFallback>ST</AvatarFallback>
                                                 </Avatar>
                                                 <span>{member.email}</span>
                                             </div>
@@ -298,9 +335,13 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                         <CardTitle className='flex justify-between items-center'><Badge>Todo</Badge><Badge variant="secondary">Tasks: {project?.todoTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {project.todoTasks.map((task, index) => (
-                            <Task key={index} />
-                        ))}
+                        {project.todoTasks.length > 0 ? (
+                            project.todoTasks.map((task, index) => (
+                                <Task key={index} />
+                            ))
+                        ) : (
+                            <small>No task added</small>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className='my-4 w-[33%] max-h-[69vh]'>
@@ -308,9 +349,13 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                         <CardTitle className='flex justify-between items-center'><Badge>Doing</Badge><Badge variant="secondary">Tasks: {project?.doingTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {project.doingTasks.map((task, index) => (
-                            <Task key={index} />
-                        ))}
+                        {project.doingTasks.length > 0 ? (
+                            project.doingTasks.map((task, index) => (
+                                <Task key={index} />
+                            ))
+                        ) : (
+                            <small>No task added</small>
+                        )}
                     </CardContent>
                 </Card>
                 <Card className='my-4 w-[33%] max-h-[69vh]'>
@@ -318,9 +363,13 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                         <CardTitle className='flex justify-between items-center'><Badge>Done</Badge><Badge variant="secondary">Tasks: {project?.doneTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
-                        {project.doneTasks.map((task, index) => (
-                            <Task key={index} />
-                        ))}
+                        {project.doneTasks.length > 0 ? (
+                            project.doneTasks.map((task, index) => (
+                                <Task key={index} />
+                            ))
+                        ) : (
+                            <small>No task added</small>
+                        )}
                     </CardContent>
                 </Card>
             </div>

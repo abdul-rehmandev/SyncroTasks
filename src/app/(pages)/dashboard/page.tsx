@@ -106,7 +106,6 @@ const page = () => {
                                     </DropdownMenu>
                                 </div>
                             </div>
-
                             <div>
                                 <ModalBox btnText='Create new project' modalHeader='Create a new project' widthSize='w-full' icon=<BadgePlus /> >
                                     <div className="grid w-full items-center gap-1.5">
@@ -124,7 +123,7 @@ const page = () => {
                                 <div>
                                     <span className='flex items-center cursor-pointer' onClick={() => setCurrTab("dashboard")} style={currTab == "dashboard" ? { color: "orange", marginLeft: "10px", transition: "0.5s all ease" } : { color: "black" }} ><Minus /><LayoutDashboard className='mr-1' size={20} />Dashboard</span>
                                 </div>
-                                <Badge variant="outline" className='mt-3'>Projects</Badge>
+                                <Badge variant="outline" className='mt-3'>My Projects</Badge>
                                 <div>
                                     {project.length > 0 ? (
                                         project.map((item: ProjectTypes, index) => (
@@ -139,7 +138,7 @@ const page = () => {
                                                 onClick={() => setCurrTab(`/project/${item.projectName}`)}
                                             >
                                                 <Minus />
-                                                <SquareKanban className='mr-1' size={20} /> {item.projectName}
+                                                <SquareKanban className='mr-1' size={20} /> {item.projectName}{item.projectOwner.email == session?.user?.email ? "" : <Badge variant="outline" className='ml-2'>Added</Badge>}
                                             </span>
                                         ))
                                     ) : (
