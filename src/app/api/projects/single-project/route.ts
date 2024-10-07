@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import Task from '@/models/Task';
 
 export async function POST(req: Request) {
     const session = await getServerSession(authOptions);
@@ -15,6 +16,8 @@ export async function POST(req: Request) {
     await connectToDatabase();
 
     const { projectName } = await req.json();
+
+    await Task;
 
     const project = await Project.findOne({ projectName })
         .populate('todoTasks')  // Populate tasks in the 'To Do' list

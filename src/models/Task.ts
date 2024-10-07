@@ -15,7 +15,10 @@ const taskSchema = new Schema({
             email: { type: String }, // Task member's email
             image: { type: String } // Task member's image
         }
-    ]
+    ],
+    taskOwner: {
+        email: { type: String, required: true }
+    }
 }, { timestamps: true });
 
 // Ensure model is not re-compiled when the app reloads

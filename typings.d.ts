@@ -40,5 +40,9 @@ interface TaskTypes {
             image: string;
         }
     ],
-    createdAt?: any
+    createdAt?: any;
+    taskOwner: {
+        email: string;
+    },
+    projectMembers: any
 }

@@ -10,7 +10,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus, Check, Eye, Forward, SquarePlus, Trash2, UserPlus } from 'lucide-react'
+import { BadgePlus, Check, SquarePlus, Trash2, UserPlus } from 'lucide-react'
 import ModalBox from '../ModalBox'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
@@ -33,8 +33,6 @@ import {
 } from "@/components/ui/tooltip"
 
 
-
-
 interface ProjectPropTypes {
     projectName: string;
 }
@@ -48,7 +46,6 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
     //Get Project Details
     const [project, setProject] = useState<ProjectTypes | undefined>();
-    console.log("🚀 ~ Project ~ project:", project)
 
     const fetchProject = async () => {
         const response = await fetch('/api/projects/single-project', {
@@ -69,6 +66,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
         }
     }
 
+
+    //Fetch All User
     const [allUsers, setAllUsers] = useState<UserTypes[]>([]);
     const fetchUsers = async () => {
         const response = await fetch('/api/users', { method: "GET" });
@@ -150,7 +149,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                 taskStatus,
                 projectName: lastSegment,
                 assignTaskUserEmail: email,
-                assignTaskUserImage: imageUrl
+                assignTaskUserImage: imageUrl,
+                taskOwnerEmail: session?.user?.email
             }),
         });
 
@@ -297,36 +297,10 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 </div>
                                 <Button variant="outline" className='w-full' onClick={newTaskCreation}><SquarePlus className="mr-2" />Create this task</Button>
                             </ModalBox>
-                            <ModalBox btnText='Assign Task' modalHeader='Assign task to user' widthSize='w-[160px]' icon=<Forward /> >
-                                {project.projectMembers.length > 0 ? (
-                                    project.projectMembers.map((member, index) => (
-                                        <div className='flex items-center justify-between gap-5' key={index}>
-                                            <div className='flex items-center gap-2'>
-                                                <Avatar className='my-2'>
-                                                    <AvatarImage src={member.image} />
-                                                    <AvatarFallback>ST</AvatarFallback>
-                                                </Avatar>
-                                                <span>{member.email}</span>
-                                            </div>
-                                            <Select>
-                                                <SelectTrigger>
-                                                    <SelectValue placeholder="Select task to assign" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="Fix Navbar Issue" >Fix Navbar Issue</SelectItem>
-                                                    <SelectItem value="Api calling" >Api calling</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    ))
-                                ) : (
-                                    <div className="text-center">
-                                        <p>No members found</p>
-                                    </div>
-                                )}
-                            </ModalBox>
+
                             <Button className='bg-red-500 hover:bg-red-500'> <Trash2 className='mr-2' />Delete this project</Button>
-                        </div>}
+                        </div>
+                        }
                     </div>
                 </CardContent>
             </Card>
@@ -339,7 +313,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.todoTasks.length > 0 ? (
                             project.todoTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -353,7 +327,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doingTasks.length > 0 ? (
                             project.doingTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -367,7 +341,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doneTasks.length > 0 ? (
                             project.doneTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
                             ))
                         ) : (
                             <small>No task added</small>

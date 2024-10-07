@@ -16,7 +16,7 @@ export async function POST(req: Request) {
 
     await connectToDatabase();
 
-    const { taskName, taskDescription, assignTaskUserEmail, assignTaskUserImage, taskPriority, taskStatus, projectName } = await req.json();
+    const { taskName, taskDescription, assignTaskUserEmail, assignTaskUserImage, taskPriority, taskStatus, projectName, taskOwnerEmail } = await req.json();
 
     // Create a new task
     const newTask = new Task({
@@ -29,6 +29,9 @@ export async function POST(req: Request) {
         taskPriority,
         taskStatus,
         projectName,
+        taskOwner: {
+            email: taskOwnerEmail
+        }
     });
 
     await newTask.save();
