@@ -23,3 +23,22 @@ interface UserTypes {
     email: string;
     image: string;
 }
+
+interface TaskTypes {
+    taskName: string;
+    taskDescription: string;
+    assignTask: {
+        email: string;
+        image: string;
+    };
+    taskPriority: string;
+    taskStatus: string;
+    projectName?: string;
+    taskMembers: [
+        {
+            email: string;
+            image: string;
+        }
+    ],
+    createdAt?: any
+}

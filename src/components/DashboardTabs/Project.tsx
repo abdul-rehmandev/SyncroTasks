@@ -48,6 +48,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
     //Get Project Details
     const [project, setProject] = useState<ProjectTypes | undefined>();
+    console.log("🚀 ~ Project ~ project:", project)
 
     const fetchProject = async () => {
         const response = await fetch('/api/projects/single-project', {
@@ -336,8 +337,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     </CardHeader>
                     <CardContent>
                         {project.todoTasks.length > 0 ? (
-                            project.todoTasks.map((task, index) => (
-                                <Task key={index} />
+                            project.todoTasks.map((task: TaskTypes, index) => (
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -350,8 +351,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     </CardHeader>
                     <CardContent>
                         {project.doingTasks.length > 0 ? (
-                            project.doingTasks.map((task, index) => (
-                                <Task key={index} />
+                            project.doingTasks.map((task: TaskTypes, index) => (
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -364,8 +365,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     </CardHeader>
                     <CardContent>
                         {project.doneTasks.length > 0 ? (
-                            project.doneTasks.map((task, index) => (
-                                <Task key={index} />
+                            project.doneTasks.map((task: TaskTypes, index) => (
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} />
                             ))
                         ) : (
                             <small>No task added</small>

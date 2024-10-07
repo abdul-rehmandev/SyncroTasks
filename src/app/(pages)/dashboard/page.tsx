@@ -138,7 +138,7 @@ const page = () => {
                                                 onClick={() => setCurrTab(`/project/${item.projectName}`)}
                                             >
                                                 <Minus />
-                                                <SquareKanban className='mr-1' size={20} /> {item.projectName}{item.projectOwner.email == session?.user?.email ? "" : <Badge variant="outline" className='ml-2'>Added</Badge>}
+                                                <SquareKanban className='mr-1' size={20} /> {item.projectName}{item.projectOwner.email == session?.user?.email ? "" : <Badge variant="outline" className='ml-1'>Added</Badge>}
                                             </span>
                                         ))
                                     ) : (

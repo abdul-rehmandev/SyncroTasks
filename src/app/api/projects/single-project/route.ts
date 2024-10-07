@@ -17,6 +17,9 @@ export async function POST(req: Request) {
     const { projectName } = await req.json();
 
     const project = await Project.findOne({ projectName })
+        .populate('todoTasks')  // Populate tasks in the 'To Do' list
+        .populate('doingTasks') // Populate tasks in the 'Doing' list
+        .populate('doneTasks'); // Populate tasks in the 'Done' list
 
     if (!project) {
         return NextResponse.json({ message: 'Project not found' }, { status: 404 });
