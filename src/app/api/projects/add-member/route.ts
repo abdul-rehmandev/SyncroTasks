@@ -2,6 +2,16 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Project from '@/models/Project';
 import User from '@/models/User';
+import Notification from '@/models/Notification';
+import Pusher from 'pusher'
+
+const pusher = new Pusher({
+    appId: process.env.PUSHER_APP_ID!,
+    key: process.env.NEXT_PUBLIC_PUSHER_APP_KEY!,
+    secret: process.env.PUSHER_APP_SECRET!,
+    cluster: process.env.NEXT_PUBLIC_PUSHER_CLUSTER!,
+    useTLS: true,
+})
 
 // Add a user to a project
 export async function POST(req: Request) {
@@ -40,6 +50,22 @@ export async function POST(req: Request) {
     });
 
     await project.save();
+
+    const notification = new Notification({
+        userEmail,
+        title: `Added to ${projectName} project.`,
+        message: `You have been added to the project "${project.projectName}".`,
+        projectName
+    })
+
+    await notification.save();
+
+    await pusher.trigger(`notifications-${userEmail}`, 'member-added', {
+        userEmail,
+        title: `Added to ${projectName} project.`,
+        message: `You have been added to the project "${project.projectName}".`,
+        projectName
+    })
 
     return NextResponse.json({ message: 'User added successfully' });
 }

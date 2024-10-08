@@ -24,6 +24,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import toast from 'react-hot-toast';
+import Notifications from '@/components/DashboardTabs/Notifications';
 
 
 const page = () => {
@@ -90,7 +91,7 @@ const page = () => {
                                     <span className='ml-1'>SyncroTasks</span>
                                 </div>
                                 <div className='flex items-center gap-2'>
-                                    <div className='relative cursor-pointer'>
+                                    <div className='relative cursor-pointer' onClick={() => setCurrTab("notifications")}>
                                         <Bell />
                                         <Badge className='absolute -top-3 -left-3'>0</Badge>
                                     </div>
@@ -153,6 +154,7 @@ const page = () => {
                     <Card className='h-[96vh] p-2'>
                         {currTab == "dashboard" && <Dashboard />}
                         {currTab.split('/')[1] == "project" && <Project projectName={currTab} />}
+                        {currTab == "notifications" && <Notifications />}
                     </Card>
                 </div>
             </div>

@@ -47,3 +47,7 @@ interface TaskTypes {
     },
     projectMembers: any
 }
+
+interface NotificationTypes {
+    message: string;
+}
