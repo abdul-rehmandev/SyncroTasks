@@ -54,7 +54,7 @@ const Notifications = () => {
                     <TabsContent value="unread" className='flex flex-col justify-start items-center'>
                         {notifications.length > 0 ? (
                             notifications.map((notification, index) => (
-                                <Notification key={index} message={notification.message} />
+                                <Notification key={index} message={notification.message} title={notification.title} projectName={notification.projectName} />
                             ))
                         ) : (
                             <li>No notifications</li>

@@ -50,4 +50,6 @@ interface TaskTypes {
 
 interface NotificationTypes {
     message: string;
+    title: string;
+    projectName: string;
 }
