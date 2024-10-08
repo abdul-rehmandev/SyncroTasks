@@ -22,9 +22,11 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import toast from 'react-hot-toast'
+import Image from 'next/image'
 
 
-const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers }: TaskTypes) => {
+const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id }: TaskTypes) => {
     const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -46,8 +48,70 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
         setFilteredUsers(filtered);
     };
 
+    //Add member to task
+    const addMemberToTask = async (userEmail: string, userImage: string) => {
+        toast.loading("Adding member...", { id: "1" })
+        try {
+            const response = await fetch(`/api/tasks/add-member`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    taskId: _id,       // The ID of the task
+                    userEmail,    // The email of the user being added
+                    userImage,    // The image of the user being added
+                }),
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                toast.success(data.message, { id: "1" })
+            } else {
+                const data = await response.json();
+                toast.error(data.message, { id: "1" })
+            }
+        } catch (error) {
+            toast.error('An error occurred while adding the user:', { id: "1" });
+        }
+    };
+
+
+    //Update task status
+
+    const updateTaskStatus = async (newStatus: string) => {
+        try {
+            const response = await fetch(`/api/tasks/update-status`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    taskId: _id,
+                    newStatus,
+                }),
+            });
+
+            if (response.ok) {
+                const updatedTask = await response.json();
+                // Handle task state update here if needed (e.g., reload tasks, update UI, etc.)
+                toast.success(updatedTask.message, { id: "1" });
+            } else {
+                const data = await response.json();
+                toast.error(data.message, { id: "1" });
+            }
+        } catch (error) {
+            toast.error("Error updating task status", { id: "1" });
+        }
+    };
+
+
     return (
-        <Card className='my-1'>
+        <Card className='my-1 relative'>
+            {taskStatus != "Done" && <div className='flex justify-center w-full'>
+                {taskMembers.some((taskMember) => taskMember.email === session?.user?.email) && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+                {session?.user?.email === assignTask.email && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+            </div>}
             <CardHeader>
                 <CardTitle className='flex items-center justify-between'><span>{taskName}</span>
                     {taskStatus != "Done" &&
@@ -71,18 +135,18 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                 <span>{assignTask.email}</span>
                             </div>
                             <div className='flex items-center gap-2'>
-                                {assignTask.email === session?.user?.email && <DropdownMenu>
+                                {assignTask.email === session?.user?.email && taskStatus != "Done" && <DropdownMenu>
                                     <DropdownMenuTrigger className='bg-orange-500 text-white py-1 px-2 rounded-full'>Update task status</DropdownMenuTrigger>
                                     <DropdownMenuContent>
-                                        {taskStatus == "Todo" ? <DropdownMenuItem>Doing</DropdownMenuItem> : taskStatus == "Doing" ? <DropdownMenuItem>Done</DropdownMenuItem> : ""}
+                                        {taskStatus == "Todo" ? <DropdownMenuItem onClick={() => updateTaskStatus("Doing")}>Doing</DropdownMenuItem> : taskStatus == "Doing" ? <DropdownMenuItem onClick={() => updateTaskStatus("Done")}>Done</DropdownMenuItem> : ""}
                                     </DropdownMenuContent>
                                 </DropdownMenu>}
-                                {taskOwner.email === session?.user?.email && <Trash2 className='hover:text-red-500 cursor-pointer' />}
+                                {/* {taskOwner.email === session?.user?.email && <Trash2 className='hover:text-red-500 cursor-pointer' />} */}
                             </div>
                         </div>
                         <div className='flex justify-between items-center mt-5'>
                             <h2 className=' text-black text-[16px] mt-2'>Members</h2>
-                            {taskOwner.email === session?.user?.email && <ModalBox btnText='Add member(s)' modalHeader='Assign task' widthSize='w-[180px]' icon=<BadgePlus /> >
+                            {taskOwner.email === session?.user?.email && taskStatus != "Done" && <ModalBox btnText='Add member(s)' modalHeader='Assign task' widthSize='w-[180px]' icon=<BadgePlus /> >
                                 <div>
                                     <div>
                                         <div className="grid w-full items-center gap-1.5">
@@ -94,6 +158,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                         {filteredUsers.slice(0, 3).map((member: UserTypes, index: number) => {
                                             // Check if the user is already in the taskMembers
                                             const isUserInTask = taskMembers.some((taskMember) => taskMember.email === member.email);
+                                            const checkMySelftAssign = member.email === assignTask.email;
 
                                             return (
                                                 <div className='flex items-center justify-between' key={index}>
@@ -104,8 +169,8 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                                         </Avatar>
                                                         <span>{member.email}</span>
                                                     </div>
-                                                    <Button variant="outline">
-                                                        {isUserInTask ? (
+                                                    <Button variant="outline" disabled={isUserInTask || checkMySelftAssign} onClick={() => addMemberToTask(member.email, member.image)}>
+                                                        {isUserInTask || checkMySelftAssign ? (
                                                             <>
                                                                 <Check className='mr-2' /> Assigned
                                                             </>

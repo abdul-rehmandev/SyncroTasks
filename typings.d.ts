@@ -25,6 +25,7 @@ interface UserTypes {
 }
 
 interface TaskTypes {
+    _id: string;
     taskName: string;
     taskDescription: string;
     assignTask: {

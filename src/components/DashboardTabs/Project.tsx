@@ -31,6 +31,8 @@ import {
     TooltipProvider,
     TooltipTrigger,
 } from "@/components/ui/tooltip"
+import { Checkbox } from "@/components/ui/checkbox"
+
 
 
 interface ProjectPropTypes {
@@ -130,9 +132,14 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     const [assignTaskUserEmail, setAssignTaskUserEmail] = useState('');
     const [taskPriority, setTaskPriority] = useState('Low');
     const [taskStatus, setTaskStatus] = useState('Todo');
+    const [assignTaskCheck, setAssignTaskCheck] = useState(false)
+
+    const handleMySelfTask = () => {
+        setAssignTaskCheck(!assignTaskCheck)
+    }
 
     const newTaskCreation = async () => {
-        if (!taskName || !taskDescription || !assignTaskUserEmail || !taskPriority || !taskStatus) return toast.error("All fields required!")
+        if (!taskName || !taskDescription || !taskPriority || !taskStatus) return toast.error("All fields required!")
         toast.loading(`Adding Task ${taskName}`, { id: "1" })
         const emailplusimage = assignTaskUserEmail;
         const [email, imageUrl] = emailplusimage.split('+');
@@ -148,8 +155,8 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                 taskPriority,
                 taskStatus,
                 projectName: lastSegment,
-                assignTaskUserEmail: email,
-                assignTaskUserImage: imageUrl,
+                assignTaskUserEmail: assignTaskCheck ? session?.user?.email : email,
+                assignTaskUserImage: assignTaskCheck ? session?.user?.image : imageUrl,
                 taskOwnerEmail: session?.user?.email
             }),
         });
@@ -251,23 +258,33 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                     <Textarea placeholder="Type your description here." id="message" value={taskDescription} onChange={(e) => setTaskDescription(e.target.value)} />
                                 </div>
                                 <div className='mb-2'>
-                                    <Label htmlFor="message">Assign task</Label>
-                                    <Select value={assignTaskUserEmail} onValueChange={setAssignTaskUserEmail}>
-                                        <SelectTrigger>
-                                            <SelectValue placeholder="Select user to assign this task" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {project.projectMembers.length > 0 ? (
-                                                project.projectMembers.map((member, index) => (
-                                                    <SelectItem value={`${member.email}+${member.image}`} key={index}>{member.email}</SelectItem>
-                                                ))
-                                            ) : (
-                                                <div className="text-center">
-                                                    <p>No members found</p>
-                                                </div>
-                                            )}
-                                        </SelectContent>
-                                    </Select>
+                                    <Label htmlFor="message" className='flex items-center justify-between mb-1'>Assign task <div className="flex items-center space-x-2">
+                                        <Checkbox id="terms" onCheckedChange={handleMySelfTask} />
+                                        <label
+                                            htmlFor="terms"
+                                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                                        >
+                                            Assign myself
+                                        </label>
+                                    </div></Label>
+                                    {!assignTaskCheck ? (
+                                        <Select value={assignTaskUserEmail} onValueChange={setAssignTaskUserEmail}>
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select user to assign this task" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                {project.projectMembers.length > 0 ? (
+                                                    project.projectMembers.map((member, index) => (
+                                                        <SelectItem value={`${member.email}+${member.image}`} key={index}>{member.email}</SelectItem>
+                                                    ))
+                                                ) : (
+                                                    <div className="text-center">
+                                                        <p>No members found</p>
+                                                    </div>
+                                                )}
+                                            </SelectContent>
+                                        </Select>
+                                    ) : ""}
                                 </div>
                                 <div className='mb-2'>
                                     <Label htmlFor="message">Task priority</Label>
@@ -313,35 +330,35 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.todoTasks.length > 0 ? (
                             project.todoTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
                             ))
                         ) : (
                             <small>No task added</small>
                         )}
                     </CardContent>
                 </Card>
-                <Card className='my-4 w-[33%] max-h-[69vh]'>
+                <Card className='my-4 w-[33%] max-h-[69vh] tasks-scroll'>
                     <CardHeader>
                         <CardTitle className='flex justify-between items-center'><Badge>Doing</Badge><Badge variant="secondary">Tasks: {project?.doingTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
                         {project.doingTasks.length > 0 ? (
                             project.doingTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
                             ))
                         ) : (
                             <small>No task added</small>
                         )}
                     </CardContent>
                 </Card>
-                <Card className='my-4 w-[33%] max-h-[69vh]'>
+                <Card className='my-4 w-[33%] max-h-[69vh] tasks-scroll'>
                     <CardHeader>
                         <CardTitle className='flex justify-between items-center'><Badge>Done</Badge><Badge variant="secondary">Tasks: {project?.doneTasks.length}</Badge></CardTitle>
                     </CardHeader>
                     <CardContent>
                         {project.doneTasks.length > 0 ? (
                             project.doneTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
                             ))
                         ) : (
                             <small>No task added</small>
