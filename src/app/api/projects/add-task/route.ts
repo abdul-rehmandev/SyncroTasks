@@ -4,6 +4,7 @@ import Project from '@/models/Project';
 import Task from '@/models/Task';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import pusher from '@/services/pusherServer';
 
 // Add a task to a project
 export async function POST(req: Request) {
@@ -52,6 +53,17 @@ export async function POST(req: Request) {
     }
 
     await project.save(); // Save the updated project
+
+    const currProject = await Project.findOne({ projectName })
+        .populate('todoTasks')  // Populate tasks in the 'To Do' list
+        .populate('doingTasks') // Populate tasks in the 'Doing' list
+        .populate('doneTasks'); // Populate tasks in the 'Done' list
+
+
+    await pusher.trigger(`project-updates-${projectName}`, 'project-updated', {
+        message: `${taskName} task added in ${projectName}`,
+        project: currProject,  // Send the updated project object
+    });
 
     return NextResponse.json(newTask);
 }

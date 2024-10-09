@@ -25,7 +25,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import toast from 'react-hot-toast';
 import Notifications from '@/components/DashboardTabs/Notifications';
+import pusherClient from "@/services/pusherClient"
 
+interface ProjectNameTypes {
+    projectName: string
+}
 
 const page = () => {
 
@@ -36,6 +40,8 @@ const page = () => {
     // Create Project
     const [projectName, setProjectName] = useState<string>("")
     const [projectDescription, setProjectDescription] = useState("")
+    const [projectNames, setProjectNames] = useState<ProjectNameTypes[]>([])
+    console.log("🚀 ~ page ~ projectNames:", projectNames)
 
     const createProject = async () => {
         if (!projectName || !projectDescription) return toast.error("All fields required!")
@@ -52,7 +58,7 @@ const page = () => {
         })
 
         if (response.ok) {
-            const data = await response.json();
+            const data = await response.json()
             setProjects((prevProjects) => [...prevProjects, data])
             toast.success("Project created successfully!", { id: "1" })
             setProjectName("")

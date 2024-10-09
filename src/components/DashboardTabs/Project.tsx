@@ -32,7 +32,7 @@ import {
     TooltipTrigger,
 } from "@/components/ui/tooltip"
 import { Checkbox } from "@/components/ui/checkbox"
-
+import pusherClient from "@/services/pusherClient"
 
 
 interface ProjectPropTypes {
@@ -116,6 +116,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
             if (response.ok) {
                 toast.success('User added to the project successfully!', { id: "1" });
+
             } else {
                 const data = await response.json();
                 toast.error(data.message, { id: "1" });
@@ -163,6 +164,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
         if (response.ok) {
             toast.success('Task added successfully', { id: "1" });
+
         } else {
             const data = await response.json();
             toast.error(data.message, { id: "1" })
@@ -172,6 +174,21 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     const isUserAlreadyAdded = (email: string) => {
         return project?.projectMembers.some((member) => member.email === email);
     };
+
+    useEffect(() => {
+
+        const channel = pusherClient.subscribe(`project-updates-${lastSegment}`);
+
+        // Listen for the "member-added" event
+        channel.bind('project-updated', (data: any) => {
+            setProject(data.project);
+            toast.success(data.message)
+        });
+
+        return () => {
+            pusherClient.unsubscribe(`project-updates-${lastSegment}`)
+        }
+    }, [project])
 
     if (!project) return <small>Loading...</small>
 
@@ -330,7 +347,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.todoTasks.length > 0 ? (
                             project.todoTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -344,7 +361,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doingTasks.length > 0 ? (
                             project.doingTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -358,7 +375,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doneTasks.length > 0 ? (
                             project.doneTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
                             ))
                         ) : (
                             <small>No task added</small>

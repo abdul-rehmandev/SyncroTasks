@@ -2,9 +2,10 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Task from '@/models/Task';
 import Project from '@/models/Project';
+import pusher from '@/services/pusherServer';
 
 export async function POST(req: Request) {
-    const { taskId, newStatus } = await req.json();
+    const { taskId, newStatus, projectName, taskName } = await req.json();
 
     await connectToDatabase();
 
@@ -27,7 +28,7 @@ export async function POST(req: Request) {
                 { doingTasks: taskId },
                 { doneTasks: taskId }
             ]
-        });
+        })
 
         if (!project) {
             return NextResponse.json({ message: 'Project not found' }, { status: 404 });
@@ -44,6 +45,17 @@ export async function POST(req: Request) {
 
         // Save the updated project
         await project.save();
+
+        const currProject = await Project.findOne({ projectName })
+            .populate('todoTasks')  // Populate tasks in the 'To Do' list
+            .populate('doingTasks') // Populate tasks in the 'Doing' list
+            .populate('doneTasks'); // Populate tasks in the 'Done' list
+
+        await pusher.trigger(`project-updates-${project.projectName}`, 'project-updated', {
+            message: `${taskName} task status updated to "${newStatus}`,
+            project: currProject,  // Send the updated project object
+        });
+
 
         return NextResponse.json({ message: 'Task status updated', task: updatedTask });
     } catch (error) {

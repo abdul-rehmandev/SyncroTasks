@@ -25,7 +25,7 @@ import { Label } from "@/components/ui/label"
 import toast from 'react-hot-toast'
 
 
-const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id }: TaskTypes) => {
+const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id, projectName }: TaskTypes) => {
     const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -60,6 +60,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                     taskId: _id,       // The ID of the task
                     userEmail,    // The email of the user being added
                     userImage,    // The image of the user being added
+                    projectName
                 }),
             });
 
@@ -79,6 +80,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
     //Update task status
 
     const updateTaskStatus = async (newStatus: string) => {
+        toast.loading(`Task status is updating to ${newStatus}...`, { id: "1" })
         try {
             const response = await fetch(`/api/tasks/update-status`, {
                 method: 'POST',
@@ -88,6 +90,8 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                 body: JSON.stringify({
                     taskId: _id,
                     newStatus,
+                    projectName,
+                    taskName
                 }),
             });
 
@@ -104,12 +108,11 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
         }
     };
 
-
     return (
         <Card className='my-1 relative'>
             {taskStatus != "Done" && <div className='flex justify-center w-full'>
-                {taskMembers.some((taskMember) => taskMember.email === session?.user?.email) && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
-                {session?.user?.email === assignTask.email && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+                {taskMembers?.some((taskMember) => taskMember.email === session?.user?.email) && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+                {session?.user?.email === assignTask?.email && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
             </div>}
             <CardHeader>
                 <CardTitle className='flex items-center justify-between'><span>{taskName}</span>
@@ -128,13 +131,13 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                         <div className='flex items-center justify-between'>
                             <div className='flex items-center gap-2'>
                                 <Avatar className='my-2'>
-                                    <AvatarImage src={assignTask.image} />
+                                    <AvatarImage src={assignTask?.image} />
                                     <AvatarFallback>ST</AvatarFallback>
                                 </Avatar>
-                                <span>{assignTask.email}</span>
+                                <span>{assignTask?.email}</span>
                             </div>
                             <div className='flex items-center gap-2'>
-                                {assignTask.email === session?.user?.email && taskStatus != "Done" && <DropdownMenu>
+                                {assignTask?.email === session?.user?.email && taskStatus != "Done" && <DropdownMenu>
                                     <DropdownMenuTrigger className='bg-orange-500 text-white py-1 px-2 rounded-full'>Update task status</DropdownMenuTrigger>
                                     <DropdownMenuContent>
                                         {taskStatus == "Todo" ? <DropdownMenuItem onClick={() => updateTaskStatus("Doing")}>Doing</DropdownMenuItem> : taskStatus == "Doing" ? <DropdownMenuItem onClick={() => updateTaskStatus("Done")}>Done</DropdownMenuItem> : ""}
@@ -145,7 +148,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                         </div>
                         <div className='flex justify-between items-center mt-5'>
                             <h2 className=' text-black text-[16px] mt-2'>Members</h2>
-                            {taskOwner.email === session?.user?.email && taskStatus != "Done" && <ModalBox btnText='Add member(s)' modalHeader='Assign task' widthSize='w-[180px]' icon=<BadgePlus /> >
+                            {taskOwner?.email === session?.user?.email && taskStatus != "Done" && <ModalBox btnText='Add member(s)' modalHeader='Assign task' widthSize='w-[180px]' icon=<BadgePlus /> >
                                 <div>
                                     <div>
                                         <div className="grid w-full items-center gap-1.5">
@@ -186,8 +189,8 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                 </div>
                             </ModalBox>}
                         </div>
-                        {taskMembers.length > 0 ? (
-                            taskMembers.map((member, index) => (
+                        {taskMembers?.length > 0 ? (
+                            taskMembers?.map((member, index) => (
                                 <div key={index}>
                                     <div className='flex items-center justify-between'>
                                         <div className='flex items-center gap-2'>
@@ -197,7 +200,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                             </Avatar>
                                             <span>{member.email}</span>
                                         </div>
-                                        {taskOwner.email === session?.user?.email && (
+                                        {taskOwner?.email === session?.user?.email && (
                                             <Trash2 className='hover:text-red-500 cursor-pointer' />
                                         )}
                                     </div>
@@ -206,16 +209,16 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                         ) : (
                             <p>No members found</p>
                         )}
-                        {taskOwner.email === session?.user?.email && <Button className='bg-red-500 hover:bg-red-500 mt-10 w-full'> <Trash2 className='mr-2' />Delete this task</Button>}
+                        {taskOwner?.email === session?.user?.email && <Button className='bg-red-500 hover:bg-red-500 mt-10 w-full'> <Trash2 className='mr-2' />Delete this task</Button>}
                     </ModalBox>
                 </div>
                 <div className="assignedUser">
                     <div className='flex'>
                         <Avatar className='-mr-3'>
-                            <AvatarImage src={assignTask.image} />
+                            <AvatarImage src={assignTask?.image} />
                             <AvatarFallback>ST</AvatarFallback>
                         </Avatar>
-                        {taskMembers.length > 0 && (
+                        {taskMembers?.length > 0 && (
                             <Avatar className='-mr-3'>
                                 <AvatarImage src="" />
                                 <AvatarFallback>+{taskMembers.length}</AvatarFallback>

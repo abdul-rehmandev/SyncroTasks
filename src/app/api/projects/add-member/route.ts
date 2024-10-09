@@ -52,6 +52,17 @@ export async function POST(req: Request) {
 
     await notification.save();
 
+    const currProject = await Project.findOne({ projectName })
+        .populate('todoTasks')  // Populate tasks in the 'To Do' list
+        .populate('doingTasks') // Populate tasks in the 'Doing' list
+        .populate('doneTasks'); // Populate tasks in the 'Done' list
+
+
+    await pusher.trigger(`project-updates-${projectName}`, 'project-updated', {
+        message: `New member added in ${projectName} project`,
+        project: currProject,  // Send the updated project object
+    });
+
     await pusher.trigger(`notifications-${userEmail}`, 'member-added', {
         userEmail,
         title: `Added to ${projectName} project.`,
