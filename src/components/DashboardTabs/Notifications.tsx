@@ -1,44 +1,15 @@
 "use client"
-import React, { useEffect, useState } from 'react'
+import React from 'react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import Notification from '../Notification'
-import { useSession } from 'next-auth/react'
-import pusherClient from "@/services/pusherClient"
-import toast from 'react-hot-toast'
+import { useSelector } from 'react-redux'
 
 
 const Notifications = () => {
 
-    const [notifications, setNotifications] = useState<NotificationTypes[]>([]);
-    const { data: session } = useSession();
+    const notifications = useSelector((state: any) => state.notifications.notifications);
+    console.log("🚀 ~ Notifications ~ notifications:", notifications)
 
-    const fetchNotifications = async () => {
-        const response = await fetch('/api/notifications/my-notifications', { method: "GET" });
-        const data = await response.json();
-
-        if (response.ok) {
-            setNotifications(data);
-        } else {
-            console.error('Failed to fetch notifications');
-        }
-    }
-
-    useEffect(() => {
-
-        const channel = pusherClient.subscribe(`notifications-${session?.user?.email}`);
-
-        // Listen for the "member-added" event
-        channel.bind('member-added', (data: any) => {
-            setNotifications((prevNotifications) => [...prevNotifications, data]);
-            toast.success(data.message)
-        });
-
-        fetchNotifications();
-
-        return () => {
-            pusherClient.unsubscribe(`notifications-${session?.user?.email}`)
-        }
-    }, [session?.user?.email])
 
     return (
         <>
@@ -53,8 +24,8 @@ const Notifications = () => {
                 <div className=' w-full h-[78vh] tasks-scroll'>
                     <TabsContent value="unread" className='flex flex-col justify-start items-center'>
                         {notifications.length > 0 ? (
-                            notifications.map((notification, index) => (
-                                <Notification key={index} message={notification.message} title={notification.title} projectName={notification.projectName} />
+                            notifications.map((notification: NotificationTypes, index: number) => (
+                                <Notification key={index} message={notification.message} title={notification.title} from={notification.from} createdAt={notification.createdAt} />
                             ))
                         ) : (
                             <li>No notifications</li>

@@ -25,23 +25,25 @@ import { Textarea } from "@/components/ui/textarea"
 import { Button } from "@/components/ui/button"
 import toast from 'react-hot-toast';
 import Notifications from '@/components/DashboardTabs/Notifications';
+import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux'
+import { addCollabProject, setCollabProjects } from '@/redux/projectSlice'
 import pusherClient from "@/services/pusherClient"
-
-interface ProjectNameTypes {
-    projectName: string
-}
+import { addNotification, setNotifications } from '@/redux/notificationSlice';
 
 const page = () => {
 
     const { data: session } = useSession();
+    const dispatch = useDispatch();
 
     const [currTab, setCurrTab] = useState("dashboard")
+
+    const projectNames = useSelector((state: any) => state.projects.projectNames);
+    const notifications = useSelector((state: any) => state.notifications.notifications);
 
     // Create Project
     const [projectName, setProjectName] = useState<string>("")
     const [projectDescription, setProjectDescription] = useState("")
-    const [projectNames, setProjectNames] = useState<ProjectNameTypes[]>([])
-    console.log("🚀 ~ page ~ projectNames:", projectNames)
 
     const createProject = async () => {
         if (!projectName || !projectDescription) return toast.error("All fields required!")
@@ -81,9 +83,58 @@ const page = () => {
         }
     };
 
+    //Fetch collab project
+    const fetchCollabProjects = async () => {
+        const response = await fetch('/api/projects/collab-projects', { method: 'GET' });
+        if (response.ok) {
+            const data = await response.json();
+            const projectNames = await data.map((project: any) => project.projectName);
+            dispatch(setCollabProjects(projectNames));
+        } else {
+            toast.error('Failed to fetch projects');
+        }
+    };
+
+    const fetchNotifications = async () => {
+        const response = await fetch('/api/notifications/my-notifications', { method: "GET" });
+        const data = await response.json();
+
+        if (response.ok) {
+            dispatch(setNotifications(data));
+        } else {
+            console.error('Failed to fetch notifications');
+        }
+    }
+
     useEffect(() => {
         fetchProjects()
+        fetchCollabProjects();
+        fetchNotifications();
     }, [])
+
+    useEffect(() => {
+        if (session?.user?.email) {
+            const channel = pusherClient.subscribe(`project-collab-${session?.user?.email}`);
+
+            // Listen for the "member-added" event
+            channel.bind('project-collab', (data: any) => {
+                dispatch(addCollabProject(data.projectName))
+            });
+
+            const channel2 = pusherClient.subscribe(`notifications-${session?.user?.email}`);
+
+            // Listen for the "member-added" event
+            channel2.bind('member-added', (data: any) => {
+                dispatch(addNotification(data));
+                toast.success(data.message)
+            });
+
+            return () => {
+                pusherClient.unsubscribe(`project-collab-${session?.user?.email}`)
+                pusherClient.unsubscribe(`notifications-${session?.user?.email}`)
+            }
+        }
+    }, [session?.user?.email])
 
     return (
         <div>
@@ -99,7 +150,7 @@ const page = () => {
                                 <div className='flex items-center gap-2'>
                                     <div className='relative cursor-pointer' onClick={() => setCurrTab("notifications")}>
                                         <Bell />
-                                        <Badge className='absolute -top-3 -left-3'>0</Badge>
+                                        <Badge className='absolute -top-3 -left-3'>{notifications.length}</Badge>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger>
@@ -150,6 +201,28 @@ const page = () => {
                                         ))
                                     ) : (
                                         <p className='mt-2 flex items-center'><OctagonX color='orange' /> No project found</p>
+                                    )}
+                                </div>
+                                <Badge variant="outline" className='mt-3'>Collab Projects</Badge>
+                                <div>
+                                    {projectNames.length > 0 ? (
+                                        projectNames.map((item: string, index: number) => (
+                                            <span
+                                                className='flex items-center cursor-pointer my-1'
+                                                style={
+                                                    currTab.split('/').pop() == item
+                                                        ? { color: "orange", marginLeft: "10px", transition: "0.5s all ease" }
+                                                        : { color: "black" }
+                                                }
+                                                key={index}
+                                                onClick={() => setCurrTab(`/project/${item}`)}
+                                            >
+                                                <Minus />
+                                                <SquareKanban className='mr-1' size={20} /> {item}
+                                            </span>
+                                        ))
+                                    ) : (
+                                        <p className='mt-2 flex items-center'><OctagonX color='orange' />No project found</p>
                                     )}
                                 </div>
                             </div>

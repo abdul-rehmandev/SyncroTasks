@@ -116,7 +116,6 @@ const Project = ({ projectName }: ProjectPropTypes) => {
 
             if (response.ok) {
                 toast.success('User added to the project successfully!', { id: "1" });
-
             } else {
                 const data = await response.json();
                 toast.error(data.message, { id: "1" });
@@ -176,7 +175,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     };
 
     useEffect(() => {
-
+        console.log("useEffectRun")
         const channel = pusherClient.subscribe(`project-updates-${lastSegment}`);
 
         // Listen for the "member-added" event

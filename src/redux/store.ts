@@ -1,9 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
-import { taskSlice } from './taskSlice';
+import projectReducer from '@/redux/projectSlice';
+import notificationReducer from "@/redux/notificationSlice";
 
 export const store = configureStore({
     reducer: {
-        tasks: taskSlice.reducer,
+        projects: projectReducer,
+        notifications: notificationReducer,
     },
 });
 

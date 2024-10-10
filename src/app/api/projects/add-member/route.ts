@@ -47,7 +47,7 @@ export async function POST(req: Request) {
         userEmail,
         title: `Added to ${projectName} project.`,
         message: `You have been added to the project "${project.projectName}".`,
-        projectName
+        from: projectName
     })
 
     await notification.save();
@@ -63,11 +63,16 @@ export async function POST(req: Request) {
         project: currProject,  // Send the updated project object
     });
 
+    await pusher.trigger(`project-collab-${userEmail}`, 'project-collab', {
+        message: `New project added ${projectName} in collab projects`,
+        projectName  // Send the updated project object
+    });
+
     await pusher.trigger(`notifications-${userEmail}`, 'member-added', {
         userEmail,
         title: `Added to ${projectName} project.`,
         message: `You have been added to the project "${project.projectName}".`,
-        projectName
+        from: projectName
     })
 
     return NextResponse.json({ message: 'User added successfully' });
