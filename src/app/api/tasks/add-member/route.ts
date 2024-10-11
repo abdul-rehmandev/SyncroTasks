@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import Task from '@/models/Task';
 import Project from '@/models/Project';
 import pusher from '@/services/pusherServer';
+import Notification from '@/models/Notification';
 
 export async function POST(req: Request) {
     const { taskId, userEmail, userImage, projectName } = await req.json();
@@ -22,6 +23,15 @@ export async function POST(req: Request) {
         if (!updatedTask) {
             return NextResponse.json({ message: 'Task not found' }, { status: 404 });
         }
+
+        const notification = new Notification({
+            userEmail,
+            title: `Added to ${projectName} project.`,
+            message: `You have been added to the task : "${updatedTask.taskName}".`,
+            from: projectName
+        })
+
+        await notification.save();
 
         const currProject = await Project.findOne({ projectName })
             .populate('todoTasks')  // Populate tasks in the 'To Do' list

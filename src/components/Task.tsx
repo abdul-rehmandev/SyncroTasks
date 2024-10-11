@@ -23,9 +23,10 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import toast from 'react-hot-toast'
+import TimeAgo from 'react-timeago';
 
 
-const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id, projectName }: TaskTypes) => {
+const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id, projectName, createdAt }: TaskTypes) => {
     const { data: session } = useSession();
     const [searchTerm, setSearchTerm] = useState('');
     const [filteredUsers, setFilteredUsers] = useState([]);
@@ -114,7 +115,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                 {taskMembers?.some((taskMember) => taskMember.email === session?.user?.email) && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
                 {session?.user?.email === assignTask?.email && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
             </div>}
-            <CardHeader>
+            <CardHeader className='p-4'>
                 <CardTitle className='flex items-center justify-between'><span>{taskName}</span>
                     {taskStatus != "Done" &&
                         <Badge variant={taskPriority == "Low" ? "outline" : taskPriority == "Critical" ? "secondary" : taskPriority == "Highest" ? "destructive" : ""}>{taskPriority}</Badge>
@@ -122,7 +123,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                 </CardTitle>
                 <CardDescription>{taskDescription}</CardDescription>
             </CardHeader>
-            <CardFooter className='flex justify-between'>
+            <CardFooter className='flex justify-between px-5 py-0'>
                 <div className="expandTask">
                     <ModalBox btnText='Expand task' modalHeader={`${taskName} Details`} widthSize='w-full' icon=<Maximize2 /> >
                         <p>{taskDescription}</p>
@@ -227,6 +228,9 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                     </div>
                 </div>
             </CardFooter>
+            <div className='mt-2 text-center'>
+                <li><small>Added <TimeAgo date={new Date(createdAt)} /></small></li>
+            </div>
         </Card>
 
     )

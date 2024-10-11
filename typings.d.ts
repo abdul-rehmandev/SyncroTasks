@@ -1,4 +1,5 @@
 interface ProjectTypes {
+    _id: string;
     projectName: string;
     projectDescription: string;
     todoTasks: [];
@@ -45,7 +46,8 @@ interface TaskTypes {
     taskOwner: {
         email: string;
     },
-    projectMembers: any
+    projectMembers: any,
+    createdAt: any
 }
 
 interface NotificationTypes {

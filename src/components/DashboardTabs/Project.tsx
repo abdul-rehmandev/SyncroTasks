@@ -33,6 +33,7 @@ import {
 } from "@/components/ui/tooltip"
 import { Checkbox } from "@/components/ui/checkbox"
 import pusherClient from "@/services/pusherClient"
+import { redirect } from "next/navigation"
 
 
 interface ProjectPropTypes {
@@ -67,6 +68,30 @@ const Project = ({ projectName }: ProjectPropTypes) => {
             toast.error('Project fetching failed', { id: "1" });
         }
     }
+
+    //Delete project
+    const deleteProject = async () => {
+        const confirmDeletion = confirm(`Are you sure you want to delete the project "${lastSegment}"? This action cannot be undone.`);
+        if (!confirmDeletion) return;
+
+        toast.loading("Deleting project...", { id: "1" });
+
+        const response = await fetch('/api/delete/project', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ projectName: lastSegment }),
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            toast.success(`${data.message}`, { id: "1" });
+        } else {
+            const errorData = await response.json();
+            toast.error(`Error: ${errorData.message}`, { id: "1" });
+        }
+    };
 
 
     //Fetch All User
@@ -331,7 +356,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 <Button variant="outline" className='w-full' onClick={newTaskCreation}><SquarePlus className="mr-2" />Create this task</Button>
                             </ModalBox>
 
-                            <Button className='bg-red-500 hover:bg-red-500'> <Trash2 className='mr-2' />Delete this project</Button>
+                            <Button className='bg-red-500 hover:bg-red-500' onClick={deleteProject}> <Trash2 className='mr-2' />Delete this project</Button>
                         </div>
                         }
                     </div>
@@ -346,7 +371,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.todoTasks.length > 0 ? (
                             project.todoTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -360,7 +385,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doingTasks.length > 0 ? (
                             project.doingTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
                             <small>No task added</small>
@@ -374,7 +399,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                     <CardContent>
                         {project.doneTasks.length > 0 ? (
                             project.doneTasks.map((task: TaskTypes, index) => (
-                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} />
+                                <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
                             <small>No task added</small>

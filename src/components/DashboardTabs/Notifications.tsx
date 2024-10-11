@@ -8,8 +8,6 @@ import { useSelector } from 'react-redux'
 const Notifications = () => {
 
     const notifications = useSelector((state: any) => state.notifications.notifications);
-    console.log("🚀 ~ Notifications ~ notifications:", notifications)
-
 
     return (
         <>

@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { CheckCheck } from 'lucide-react'
-import moment from "moment"
+import TimeAgo from 'react-timeago';
 
 
 const Notification = ({ message, from, title, createdAt }: NotificationTypes) => {
@@ -17,7 +17,7 @@ const Notification = ({ message, from, title, createdAt }: NotificationTypes) =>
             <CardHeader>
                 <CardTitle className='flex justify-between items-center'>{title} <span className='cursor-pointer hover:scale-110 transition-all'><Badge variant="outline"><CheckCheck size={18} className='mr-1' /> Mark as read</Badge></span>
                 </CardTitle>
-                <CardDescription><span>{moment(createdAt).fromNow()} </span> {from && <span> | {from}</span>}</CardDescription>
+                <CardDescription><span><TimeAgo date={createdAt} /></span> {from && <span> | {from}</span>}</CardDescription>
             </CardHeader>
             <CardContent>
                 <p>{message}</p>

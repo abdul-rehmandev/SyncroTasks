@@ -65,11 +65,10 @@ export async function POST(req: Request) {
 
     await pusher.trigger(`project-collab-${userEmail}`, 'project-collab', {
         message: `New project added ${projectName} in collab projects`,
-        projectName  // Send the updated project object
+        projectName
     });
 
     await pusher.trigger(`notifications-${userEmail}`, 'member-added', {
-        userEmail,
         title: `Added to ${projectName} project.`,
         message: `You have been added to the project "${project.projectName}".`,
         from: projectName

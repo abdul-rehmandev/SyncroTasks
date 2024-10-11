@@ -18,9 +18,15 @@ const projectSlice = createSlice({
         setCollabProjects: (state, action: PayloadAction<string[]>) => {
             state.projectNames = action.payload;
         },
+        deleteCollabProject: (state, action: PayloadAction<string>) => {
+            // Remove the project from the projectNames array by filtering it out
+            state.projectNames = state.projectNames.filter(
+                (projectName) => projectName !== action.payload
+            );
+        },
     }
 });
 
-export const { addCollabProject, setCollabProjects } = projectSlice.actions;
+export const { addCollabProject, setCollabProjects, deleteCollabProject } = projectSlice.actions;
 
 export default projectSlice.reducer;

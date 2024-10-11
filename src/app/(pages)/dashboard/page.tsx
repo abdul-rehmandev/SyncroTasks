@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { signOut, useSession } from 'next-auth/react';
 import { Badge } from "@/components/ui/badge"
-import { BadgePlus, Bell, LayoutDashboard, Minus, OctagonX, SquareKanban, SquarePlus } from "lucide-react"
+import { BadgePlus, Bell, LayoutDashboard, Minus, SquareKanban, SquarePlus } from "lucide-react"
 import { Separator } from "@/components/ui/separator"
 import Dashboard from '@/components/DashboardTabs/Dashboard';
 import Project from '@/components/DashboardTabs/Project';
@@ -27,9 +27,10 @@ import toast from 'react-hot-toast';
 import Notifications from '@/components/DashboardTabs/Notifications';
 import { useSelector } from 'react-redux';
 import { useDispatch } from 'react-redux'
-import { addCollabProject, setCollabProjects } from '@/redux/projectSlice'
+import { addCollabProject, deleteCollabProject, setCollabProjects } from '@/redux/projectSlice'
 import pusherClient from "@/services/pusherClient"
 import { addNotification, setNotifications } from '@/redux/notificationSlice';
+import { redirect } from "next/navigation"
 
 const page = () => {
 
@@ -39,6 +40,7 @@ const page = () => {
     const [currTab, setCurrTab] = useState("dashboard")
 
     const projectNames = useSelector((state: any) => state.projects.projectNames);
+    console.log("🚀 ~ page ~ projectNames:", projectNames)
     const notifications = useSelector((state: any) => state.notifications.notifications);
 
     // Create Project
@@ -129,9 +131,33 @@ const page = () => {
                 toast.success(data.message)
             });
 
+            const channel3 = pusherClient.subscribe(`project-delete-${session.user.email}`);
+
+            // Listen for the 'project-deleted' event
+            channel3.bind('project-deleted', (data: any) => {
+                // Filter out the deleted project from the state
+                setProjects((prevProjects) =>
+                    prevProjects.filter((project) => project.projectName !== data.projectName)
+                );
+                toast.success(data.message);
+                setCurrTab("dashboard")
+            });
+
+            const channel4 = pusherClient.subscribe(`collab-project-delete-${session.user.email}`);
+
+            // Listen for the 'coolab-project-deleted' event
+            channel4.bind('collab-project-deleted', (data: any) => {
+                // Filter out the deleted project from the state
+                dispatch(deleteCollabProject(data.projectName));
+                toast.success(data.message);
+                setCurrTab("dashboard")
+            });
+
             return () => {
                 pusherClient.unsubscribe(`project-collab-${session?.user?.email}`)
                 pusherClient.unsubscribe(`notifications-${session?.user?.email}`)
+                pusherClient.unsubscribe(`project-delete-${session?.user?.email}`)
+                pusherClient.unsubscribe(`collab-project-delete-${session?.user?.email}`)
             }
         }
     }, [session?.user?.email])
@@ -200,7 +226,9 @@ const page = () => {
                                             </span>
                                         ))
                                     ) : (
-                                        <p className='mt-2 flex items-center'><OctagonX color='orange' /> No project found</p>
+                                        <li>
+                                            <small className='mt-2'>No project found</small>
+                                        </li>
                                     )}
                                 </div>
                                 <Badge variant="outline" className='mt-3'>Collab Projects</Badge>
@@ -222,7 +250,9 @@ const page = () => {
                                             </span>
                                         ))
                                     ) : (
-                                        <p className='mt-2 flex items-center'><OctagonX color='orange' />No project found</p>
+                                        <li>
+                                            <small className='mt-2'>No project found</small>
+                                        </li>
                                     )}
                                 </div>
                             </div>
