@@ -14,12 +14,12 @@ import TimeAgo from 'react-timeago';
 const Notification = ({ message, from, title, createdAt }: NotificationTypes) => {
     return (
         <Card className='w-[700px] my-1'>
-            <CardHeader>
+            <CardHeader className='py-2'>
                 <CardTitle className='flex justify-between items-center'>{title} <span className='cursor-pointer hover:scale-110 transition-all'><Badge variant="outline"><CheckCheck size={18} className='mr-1' /> Mark as read</Badge></span>
                 </CardTitle>
                 <CardDescription><span><TimeAgo date={createdAt} /></span> {from && <span> | {from}</span>}</CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="py-1">
                 <p>{message}</p>
             </CardContent>
         </Card>

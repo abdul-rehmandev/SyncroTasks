@@ -109,6 +109,52 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
         }
     };
 
+    //Remove member from task
+    const handleRemoveMemberFromTask = async (userEmail: string) => {
+        toast.loading("Removing user...", { id: "1" })
+        const response = await fetch('/api/delete/memberintask', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                taskId: _id,
+                userEmail,
+                projectName
+            }),
+        });
+
+        if (response.ok) {
+            // Remove the member from the Redux state
+            toast.success(`User ${userEmail} has been removed from the task`, { id: "1" });
+        } else {
+            toast.error('Failed to remove user', { id: "1" });
+        }
+    };
+
+    //Delete a atask
+    const handleDeleteTask = async () => {
+        toast.loading("Deleting...", { id: "1" })
+        const response = await fetch('/api/delete/task', {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                taskId: _id,
+                projectName,
+                taskName
+            }),
+        });
+
+        if (response.ok) {
+            // Remove the task from the Redux state
+            toast.success(`Task has been deleted`, { id: "1" });
+        } else {
+            toast.error('Failed to delete task', { id: "1" });
+        }
+    };
+
     return (
         <Card className='my-1 relative'>
             {taskStatus != "Done" && <div className='flex justify-center w-full'>
@@ -202,7 +248,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                                             <span>{member.email}</span>
                                         </div>
                                         {taskOwner?.email === session?.user?.email && (
-                                            <Trash2 className='hover:text-red-500 cursor-pointer' />
+                                            <Trash2 className='hover:text-red-500 cursor-pointer' onClick={() => handleRemoveMemberFromTask(member.email)} />
                                         )}
                                     </div>
                                 </div>
@@ -210,7 +256,7 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
                         ) : (
                             <p>No members found</p>
                         )}
-                        {taskOwner?.email === session?.user?.email && <Button className='bg-red-500 hover:bg-red-500 mt-10 w-full'> <Trash2 className='mr-2' />Delete this task</Button>}
+                        {taskOwner?.email === session?.user?.email && <Button className='bg-red-500 hover:bg-red-500 mt-10 w-full' onClick={handleDeleteTask}> <Trash2 className='mr-2' />Delete this task</Button>}
                     </ModalBox>
                 </div>
                 <div className="assignedUser">

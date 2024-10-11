@@ -93,6 +93,28 @@ const Project = ({ projectName }: ProjectPropTypes) => {
         }
     };
 
+    //Remove member from project
+    const handleRemoveMember = async (userEmail: string) => {
+        toast.loading("Removing user...", { id: "1" })
+        const response = await fetch('/api/delete/memberinproject', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                projectName: lastSegment,
+                userEmail,
+            }),
+        });
+
+        if (response.ok) {
+            // Remove the member from the Redux state
+            toast.success(`User ${userEmail} has been removed from the project`, { id: "1" });
+        } else {
+            toast.error('Failed to remove user', { id: "1" });
+        }
+    };
+
 
     //Fetch All User
     const [allUsers, setAllUsers] = useState<UserTypes[]>([]);
@@ -200,7 +222,6 @@ const Project = ({ projectName }: ProjectPropTypes) => {
     };
 
     useEffect(() => {
-        console.log("useEffectRun")
         const channel = pusherClient.subscribe(`project-updates-${lastSegment}`);
 
         // Listen for the "member-added" event
@@ -209,8 +230,16 @@ const Project = ({ projectName }: ProjectPropTypes) => {
             toast.success(data.message)
         });
 
+        const channel2 = pusherClient.subscribe(`project-delete-${lastSegment}`);
+
+        // Listen for the "member-added" event
+        channel2.bind('project-delete-update', (data: any) => {
+            setProject(data.project);
+        });
+
         return () => {
             pusherClient.unsubscribe(`project-updates-${lastSegment}`)
+            pusherClient.unsubscribe(`project-delete-${lastSegment}`)
         }
     }, [project])
 
@@ -253,7 +282,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                                             </Avatar>
                                                             <span>{member.email}</span>
                                                         </div>
-                                                        {project.projectOwner.email == session?.user?.email && <Trash2 className="hover:text-red-500 cursor-pointer" />}
+                                                        {project.projectOwner.email == session?.user?.email && <Trash2 className="hover:text-red-500 cursor-pointer" onClick={() => handleRemoveMember(member.email)} />}
                                                     </div>
                                                 </div>
                                             ))

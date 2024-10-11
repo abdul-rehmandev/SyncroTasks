@@ -40,7 +40,6 @@ const page = () => {
     const [currTab, setCurrTab] = useState("dashboard")
 
     const projectNames = useSelector((state: any) => state.projects.projectNames);
-    console.log("🚀 ~ page ~ projectNames:", projectNames)
     const notifications = useSelector((state: any) => state.notifications.notifications);
 
     // Create Project
@@ -147,6 +146,16 @@ const page = () => {
 
             // Listen for the 'coolab-project-deleted' event
             channel4.bind('collab-project-deleted', (data: any) => {
+                // Filter out the deleted project from the state
+                dispatch(deleteCollabProject(data.projectName));
+                toast.success(data.message);
+                setCurrTab("dashboard")
+            });
+
+            const channel5 = pusherClient.subscribe(`project-delete-member-${session.user.email}`);
+
+            // Listen for the 'coolab-project-deleted' event
+            channel5.bind('project-deleted-member', (data: any) => {
                 // Filter out the deleted project from the state
                 dispatch(deleteCollabProject(data.projectName));
                 toast.success(data.message);
