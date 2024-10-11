@@ -1,0 +1,18 @@
+{
+    "appName": "SyncroTasks",
+    "heroSectionDescription": "SyncroTasks is your ultimate real-time task management tool designed for teams and individuals to collaborate effortlessly. Whether you're leading a project or contributing as a team member, SyncroTasks offers seamless project creation, role assignment, and dynamic task management features.",
+    "heroSectionBtn": "Get Started - Sync Your Tasks, Streamline Your Success.",
+    "sectionHeading": "How It Works ?",
+    "step1": "Create a New Project",
+    "step2": "Add Your Team",
+    "step3": "Assign and Track Tasks",
+    "step4": "Collaborate",
+    "step1Description": "Project creation is quick and easy.",
+    "step2Description": "Encourages the user to add team members.",
+    "step3Description": "Real-time task assignment and tracking.",
+    "step4Description": "Real-time collaboration features.",
+    "step1Count": "1",
+    "step2Count": "2",
+    "step3Count": "3",
+    "step4Count": "4"
+}
