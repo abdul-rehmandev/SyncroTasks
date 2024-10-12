@@ -51,8 +51,10 @@ interface TaskTypes {
 }
 
 interface NotificationTypes {
+    _id: string;
     message: string;
     title: string;
     from: string;
-    createdAt: any
+    createdAt: any;
+    isRead: boolean;
 }

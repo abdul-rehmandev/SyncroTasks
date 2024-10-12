@@ -3,6 +3,7 @@ import { connectToDatabase } from '@/lib/mongodb';
 import Project from '@/models/Project';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/app/api/auth/[...nextauth]/route';
+import pusher from '@/services/pusherServer';
 
 // Handle project creation
 export async function POST(req: Request) {
@@ -33,6 +34,19 @@ export async function POST(req: Request) {
     });
 
     await newProject.save();
+
+    const currProject = await Project.find({
+        $or: [
+            { 'projectOwner.email': session.user.email }, // User is the owner
+            { 'projectMembers.email': session.user.email } // User is a member
+        ]
+    }).sort({ createdAt: -1 });
+
+    // Notify the owner of the project creation
+    await pusher.trigger(`all-project-updates-${session.user.email}`, 'all-project-created', {
+        message: `${newProject.projectName} has been created successfully.`,
+        project: currProject,  // Send the newly created project object
+    });
 
     return NextResponse.json(newProject);
 }

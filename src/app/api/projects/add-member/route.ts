@@ -71,8 +71,16 @@ export async function POST(req: Request) {
     await pusher.trigger(`notifications-${userEmail}`, 'member-added', {
         title: `Added to ${projectName} project.`,
         message: `You have been added to the project "${project.projectName}".`,
-        from: projectName
+        from: projectName,
+        createdAt: notification.createdAt
     })
+
+    const currProjects = await Project.find({ 'projectMembers.email': userEmail }).sort({ createdAt: -1 });
+
+    await pusher.trigger(`all-project-updates-${userEmail}`, 'all-project-created', {
+        message: `You have been added to the project ${project.projectName}.`,
+        project: currProjects,  // Send the newly created project object to each member
+    });
 
     return NextResponse.json({ message: 'User added successfully' });
 }

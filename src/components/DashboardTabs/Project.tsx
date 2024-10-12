@@ -288,7 +288,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                             ))
                                         ) : (
                                             <div className="text-center">
-                                                <p>No members found</p>
+                                                <p>Looks like there are no members yet.</p>
                                             </div>
                                         )}
                                     </ModalBox></AvatarFallback>
@@ -349,7 +349,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                                     ))
                                                 ) : (
                                                     <div className="text-center">
-                                                        <p>No members found</p>
+                                                        <p>Looks like there are no members yet.</p>
                                                     </div>
                                                 )}
                                             </SelectContent>
@@ -403,7 +403,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
-                            <small>No task added</small>
+                            <small>Looks like there are no tasks yet.</small>
                         )}
                     </CardContent>
                 </Card>
@@ -417,7 +417,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
-                            <small>No task added</small>
+                            <small>Looks like there are no tasks yet.</small>
                         )}
                     </CardContent>
                 </Card>
@@ -431,7 +431,7 @@ const Project = ({ projectName }: ProjectPropTypes) => {
                                 <Task key={index} taskName={task.taskName} taskDescription={task.taskDescription} taskStatus={task.taskStatus} taskPriority={task.taskPriority} taskMembers={task.taskMembers} assignTask={task.assignTask} taskOwner={task.taskOwner} projectMembers={project} _id={task._id} projectName={task.projectName} createdAt={task.createdAt} />
                             ))
                         ) : (
-                            <small>No task added</small>
+                            <small>Looks like there are no tasks yet.</small>
                         )}
                     </CardContent>
                 </Card>

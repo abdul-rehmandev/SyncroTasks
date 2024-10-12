@@ -59,7 +59,7 @@ export async function POST(req: Request) {
         userEmail: assignTaskUserEmail,
         title: `Added to ${projectName} project.`,
         message: `You have been added to the task : "${taskName}".`,
-        from: projectName
+        from: projectName,
     })
 
     await notification.save();
@@ -78,7 +78,8 @@ export async function POST(req: Request) {
     await pusher.trigger(`notifications-${assignTaskUserEmail}`, 'member-added', {
         title: `Added to ${taskName} task.`,
         message: `You have been added to a new task : "${taskName}".`,
-        from: projectName
+        from: projectName,
+        createdAt: notification.createdAt
     })
 
     return NextResponse.json(newTask);

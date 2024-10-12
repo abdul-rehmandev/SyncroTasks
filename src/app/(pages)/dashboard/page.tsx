@@ -42,13 +42,15 @@ const page = () => {
     const projectNames = useSelector((state: any) => state.projects.projectNames);
     const notifications = useSelector((state: any) => state.notifications.notifications);
 
+    const unreadNotifications = notifications.filter((notification: any) => !notification.isRead);
+
     // Create Project
     const [projectName, setProjectName] = useState<string>("")
     const [projectDescription, setProjectDescription] = useState("")
 
     const createProject = async () => {
         if (!projectName || !projectDescription) return toast.error("All fields required!")
-        toast.loading("Project creating inprogress", { id: "1" })
+        toast.loading("Project creation inprogress", { id: "1" })
         const response = await fetch('/api/projects', {
             method: "POST",
             headers: {
@@ -185,7 +187,7 @@ const page = () => {
                                 <div className='flex items-center gap-2'>
                                     <div className='relative cursor-pointer' onClick={() => setCurrTab("notifications")}>
                                         <Bell />
-                                        <Badge className='absolute -top-3 -left-3'>{notifications.length}</Badge>
+                                        <Badge className='absolute -top-3 -left-3'>{unreadNotifications.length}</Badge>
                                     </div>
                                     <DropdownMenu>
                                         <DropdownMenuTrigger>
@@ -236,7 +238,7 @@ const page = () => {
                                         ))
                                     ) : (
                                         <li>
-                                            <small className='mt-2'>No project found</small>
+                                            <small className='mt-2'>No projects available. Create one to start.</small>
                                         </li>
                                     )}
                                 </div>
@@ -260,7 +262,7 @@ const page = () => {
                                         ))
                                     ) : (
                                         <li>
-                                            <small className='mt-2'>No project found</small>
+                                            <small className='mt-2'>Projects will appear here when you're added to one.</small>
                                         </li>
                                     )}
                                 </div>
