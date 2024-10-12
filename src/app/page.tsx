@@ -2,7 +2,7 @@ import React from 'react'
 import { getServerSession } from 'next-auth'
 import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from "next/navigation"
-import Homepage from "@/app/(pages)/homepage/page";
+import HeroSection from '@/components/HeroSection';
 
 
 const Home = async () => {
@@ -14,7 +14,7 @@ const Home = async () => {
   }
 
   return (
-    <Homepage />
+    <HeroSection />
   )
 }
 
