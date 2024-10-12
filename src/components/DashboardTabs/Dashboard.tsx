@@ -55,7 +55,7 @@ const Dashboard = () => {
 
     return (
         <div>
-            <h2 className='mb-3 flex items-center justify-center  gap-2'><img width="32" height="32" src="https://img.icons8.com/emoji/32/waving-hand-emoji.png" alt="waving-hand-emoji" />Hey <span style={{ color: "orange", fontWeight: "bold" }}>{session?.user?.name}</span> Welcome to your dashboard. Let’s get things done!</h2>
+            <h2 className='mb-3 flex items-center justify-center  gap-2'><Image width="32" height="32" src="https://img.icons8.com/emoji/32/waving-hand-emoji.png" alt="waving-hand-emoji" />Hey <span style={{ color: "orange", fontWeight: "bold" }}>{session?.user?.name}</span> Welcome to your dashboard. Let’s get things done!</h2>
             <div className="cards flex justify-between">
                 <Card className='w-[350px] h-[200px] flex justify-center items-center flex-col bg-orange-50'>
                     <Image src={session?.user?.image || 'https://github.com/shadcn.png'} alt={session?.user?.name || 'User Avatar'} width={100} height={100} className='rounded-full' />

@@ -30,9 +30,8 @@ import { useDispatch } from 'react-redux'
 import { addCollabProject, deleteCollabProject, setCollabProjects } from '@/redux/projectSlice'
 import pusherClient from "@/services/pusherClient"
 import { addNotification, setNotifications } from '@/redux/notificationSlice';
-import { redirect } from "next/navigation"
 
-const page = () => {
+const Page = () => {
 
     const { data: session } = useSession();
     const dispatch = useDispatch();
@@ -282,4 +281,4 @@ const page = () => {
     )
 }
 
-export default page
+export default Page

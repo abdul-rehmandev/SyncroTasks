@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import toast from 'react-hot-toast'
 import TimeAgo from 'react-timeago';
+import Image from 'next/image'
 
 
 const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers, assignTask, taskOwner, projectMembers, _id, projectName, createdAt }: TaskTypes) => {
@@ -158,8 +159,8 @@ const Task = ({ taskName, taskDescription, taskStatus, taskPriority, taskMembers
     return (
         <Card className='my-1 relative'>
             {taskStatus != "Done" && <div className='flex justify-center w-full'>
-                {taskMembers?.some((taskMember) => taskMember.email === session?.user?.email) && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
-                {session?.user?.email === assignTask?.email && <img src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+                {taskMembers?.some((taskMember) => taskMember.email === session?.user?.email) && <Image src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
+                {session?.user?.email === assignTask?.email && <Image src="/Images/live-task.gif" alt='user-working' className='absolute' width={22} height={22} />}
             </div>}
             <CardHeader className='p-4'>
                 <CardTitle className='flex items-center justify-between'><span>{taskName}</span>
